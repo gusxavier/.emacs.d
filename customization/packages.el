@@ -11,6 +11,20 @@
 
 (use-package better-defaults)
 
+(use-package cider
+  :config
+  (setq cider-lein-parameters "with-profile prod repl :headless"))
+
+(use-package clj-refactor
+  :config
+  (defun my-clojure-mode-hook ()
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1)
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
+  (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
+
+(use-package clojure-mode)
+
 (use-package company
   :defer t
   :init (global-company-mode))
@@ -19,6 +33,9 @@
   :init
   (load-theme 'doom-one t)
   (doom-themes-org-config))
+
+(use-package elpy
+  :config (elpy-enable))
 
 (use-package enh-ruby-mode
   :bind ("TAB" . enh-ruby-indent-exp)
@@ -35,40 +52,52 @@
 (use-package feature-mode)
 
 (use-package flycheck
+  :defer t
   :init (global-flycheck-mode))
 
 (use-package helm
+  :defer t
   :bind (("M-x" . helm-M-x)
          ("C-x C-f" . helm-find-files)
          ("C-x b" . helm-buffers-list)))
 
-(use-package helm-ag)
+(use-package helm-ag
+  :defer t)
 
 (use-package helm-projectile
   :defer t
   :init (helm-projectile-on))
+
+(use-package inf-mongo)
 
 (use-package inf-ruby)
 
 (use-package magit)
 
 (use-package neotree
+  :defer t
   :bind ("C-c p n" . neotree)
   :config (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
+(use-package paredit
+  :init (add-hook 'clojure-mode-hook #'paredit-mode))
+
 (use-package projectile
   :defer t
-  :config (projectile-discover-projects-in-directory "~/workspace")
+  :config
+  (projectile-discover-projects-in-directory "~/workspace")
+  ;; Workaround to avoid projectile making the editor very slow
+  ;; https://github.com/bbatsov/projectile/issues/1183#issuecomment-335569547
+  (setq projectile-mode-line
+        '(:eval (format " Projectile[%s]"
+                        (projectile-project-name))))
   :init (projectile-mode))
 
 (use-package rainbow-delimiters
-  :defer t
-  :init
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 (use-package rainbow-mode
-  :defer t
-  :init (rainbow-mode))
+  :init (add-hook 'prog-mode-hook #'rainbow-mode))
 
 (use-package rubocop)
 
@@ -84,11 +113,8 @@
   :init (smartparens-global-mode))
 
 (use-package telephone-line
-  :init (telephone-line-mode 1))
-
-(use-package windmove
   :defer t
-  :init (windmove-default-keybindings))
+  :init (telephone-line-mode 1))
 
 (provide 'packages)
 ;;; packages.el ends here

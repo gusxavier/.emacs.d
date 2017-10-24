@@ -1,3 +1,9 @@
+;;; package --- Summary
+
+;;; Commentary:
+
+;;; Code:
+
 ;; Set command as meta key in mac
 (setq mac-option-key-is-meta nil
       mac-command-key-is-meta t
@@ -13,3 +19,12 @@
 ;; Indent with spaces only
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
+
+;; Enable windmove
+(windmove-default-keybindings)
+
+;; Reload buffers on disk change
+(global-auto-revert-mode t)
+
+(provide 'misc)
+;;; misc.el ends here
