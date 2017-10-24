@@ -16,8 +16,17 @@
 ;; Disable startup screen
 (setq inhibit-startup-message t)
 
-;; Set default font
-(setq default-frame-alist '((font . "Hack-10")))
+;; Font config
+(defun fontify-frame (frame)
+  "Define the font size based on FRAME resolution."
+  (interactive)
+  (if window-system
+      (progn
+        (if (> (x-display-pixel-width) 1900)
+            (set-frame-parameter frame 'font "Hack 10")
+          (set-frame-parameter frame 'font "Hack 12")))))
+(fontify-frame nil)
+(push 'fontify-frame after-make-frame-functions)
 
 ;; Remove scroll bar
 (scroll-bar-mode -1)

@@ -21,7 +21,7 @@
     (clj-refactor-mode 1)
     (yas-minor-mode 1)
     (cljr-add-keybindings-with-prefix "C-c C-m"))
-  (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
+  (add-hook 'clojure-mode-hook 'my-clojure-mode-hook))
 
 (use-package clojure-mode)
 
@@ -29,10 +29,14 @@
   :defer t
   :init (global-company-mode))
 
-(use-package doom-themes
-  :init
-  (load-theme 'doom-one t)
-  (doom-themes-org-config))
+(use-package dracula-theme
+  :init (load-theme 'dracula t))
+
+;; (use-package doom-themes
+;;   :init
+;;   (load-theme 'doom-vibrant t)
+;;   (doom-themes-neotree-config)
+;;   (doom-themes-org-config))
 
 (use-package elpy
   :config (elpy-enable))
@@ -57,6 +61,8 @@
 
 (use-package helm
   :defer t
+  :config
+  (setq helm-split-window-default-side 'down)
   :bind (("M-x" . helm-M-x)
          ("C-x C-f" . helm-find-files)
          ("C-x b" . helm-buffers-list)))
