@@ -97,6 +97,8 @@
   :bind ("C-c p n" . neotree)
   :config (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
+(use-package nim-mode)
+
 (use-package paredit
   :init (add-hook 'clojure-mode-hook #'paredit-mode))
 
@@ -125,6 +127,8 @@
   :config (setq ruby-insert-encoding-magic-comment nil))
 
 (use-package rvm)
+
+(use-package slim-mode)
 
 (use-package smartparens
   :defer t
