@@ -12,6 +12,7 @@
 (use-package better-defaults)
 
 (use-package cider
+  :bind ("C-c M-b" . cider-repl-clear-buffer)
   :config
   (setq cider-lein-parameters "with-profile prod repl :headless"))
 
