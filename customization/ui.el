@@ -23,7 +23,7 @@
   (if window-system
       (progn
         (if (> (x-display-pixel-width) 1900)
-            (set-frame-parameter frame 'font "Hack 9")
+            (set-frame-parameter frame 'font "Hack 10")
           (set-frame-parameter frame 'font "Hack 12")))))
 (fontify-frame nil)
 (push 'fontify-frame after-make-frame-functions)

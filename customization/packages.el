@@ -33,12 +33,6 @@
 (use-package dracula-theme
   :init (load-theme 'dracula t))
 
-;; (use-package doom-themes
-;;   :init
-;;   (load-theme 'doom-vibrant t)
-;;   (doom-themes-neotree-config)
-;;   (doom-themes-org-config))
-
 (use-package elpy
   :config (elpy-enable))
 
@@ -58,6 +52,8 @@
 
 (use-package flycheck
   :defer t
+  :config
+  (setq flycheck-highlighting-mode "symbols")
   :init (global-flycheck-mode))
 
 (use-package helm
@@ -92,6 +88,13 @@
   (define-key js-mode-map (kbd "M-.") nil))
 
 (use-package magit)
+
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 
 (use-package neotree
   :defer t
@@ -146,13 +149,14 @@
   :config
   (defun my-web-mode-hook ()
     "Hooks for web mode"
-    (setq web-mode-markup-indent-offset 2)
-    (setq web-mode-css-indent-offset 2)
-    (setq web-mode-code-indent-offset 2)
-    (setq web-mode-style-padding 2)
-    (setq web-mode-script-padding 2)
+    (setq web-mode-markup-indent-offset 4)
+    (setq web-mode-css-indent-offset 4)
+    (setq web-mode-code-indent-offset 4)
+    (setq web-mode-style-padding 4)
+    (setq web-mode-script-padding 4)
     (setq web-mode-enable-auto-pairing t)
-    (setq web-mode-enable-current-element-highlight t))
+    (setq web-mode-enable-current-element-highlight t)
+    (setq web-mode-enable-auto-indentation nil))
   (add-hook 'web-mode-hook 'my-web-mode-hook)
   (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
