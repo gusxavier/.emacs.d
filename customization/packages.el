@@ -34,7 +34,8 @@
   :init (load-theme 'dracula t))
 
 (use-package elpy
-  :config (elpy-enable))
+  :config
+  (elpy-enable))
 
 (use-package enh-ruby-mode
   :bind ("TAB" . enh-ruby-indent-exp)
@@ -42,11 +43,6 @@
   (setq enh-ruby-add-encoding-comment-on-save nil)
   (add-to-list 'auto-mode-alist
                '("\\(?:\\.rb\\|ru\\|rake\\|thor\\|jbuilder\\|gemspec\\|podspec\\|/\\(?:Gem\\|Rake\\|Cap\\|Thor\\|Vagrant\\|Guard\\|Pod\\)file\\)\\'" . enh-ruby-mode)))
-
-(use-package exec-path-from-shell
-  :if (memq window-system '(mac ns x))
-  :config
-  (exec-path-from-shell-initialize))
 
 (use-package feature-mode)
 
@@ -65,6 +61,8 @@
          ("C-x b" . helm-buffers-list)))
 
 (use-package helm-ag
+  :config
+  (setq helm-ag-use-grep-ignore-list '("\\node_modules\\'"))
   :defer t)
 
 (use-package helm-projectile
@@ -117,6 +115,12 @@
                         (projectile-project-name))))
   :init (projectile-mode))
 
+(use-package pyenv-mode
+  :config
+  (pyenv-mode))
+
+(use-package pyenv-mode-auto)
+
 (use-package rainbow-delimiters
   :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
@@ -145,15 +149,17 @@
 (use-package undo-tree
   :init (global-undo-tree-mode))
 
+(use-package vue-mode)
+
 (use-package web-mode
   :config
   (defun my-web-mode-hook ()
     "Hooks for web mode"
-    (setq web-mode-markup-indent-offset 4)
-    (setq web-mode-css-indent-offset 4)
-    (setq web-mode-code-indent-offset 4)
-    (setq web-mode-style-padding 4)
-    (setq web-mode-script-padding 4)
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-css-indent-offset 2)
+    (setq web-mode-code-indent-offset 2)
+    (setq web-mode-style-padding 2)
+    (setq web-mode-script-padding 2)
     (setq web-mode-enable-auto-pairing t)
     (setq web-mode-enable-current-element-highlight t)
     (setq web-mode-enable-auto-indentation nil))
@@ -162,6 +168,14 @@
   (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.mjml\\'" . web-mode)))
+
+
+(use-package yaml-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+  (add-hook 'yaml-mode-hook
+            '(lambda ()
+               (define-key yaml-mode-map "\C-m" 'newline-and-indent))))
 
 (provide 'packages)
 ;;; packages.el ends here
