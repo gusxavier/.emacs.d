@@ -30,6 +30,8 @@
   :defer t
   :init (global-company-mode))
 
+(use-package company-go)
+
 (use-package dracula-theme
   :init (load-theme 'dracula t))
 
@@ -44,13 +46,29 @@
   (add-to-list 'auto-mode-alist
                '("\\(?:\\.rb\\|ru\\|rake\\|thor\\|jbuilder\\|gemspec\\|podspec\\|/\\(?:Gem\\|Rake\\|Cap\\|Thor\\|Vagrant\\|Guard\\|Pod\\)file\\)\\'" . enh-ruby-mode)))
 
+;; (use-package exec-path-from-shell
+;;   :init
+;;   (when (memq window-system '(mac ns x))
+;;     (exec-path-from-shell-initialize)))
+
 (use-package feature-mode)
+
+(use-package fish-mode)
 
 (use-package flycheck
   :defer t
   :config
   (setq flycheck-highlighting-mode "symbols")
   :init (global-flycheck-mode))
+
+(use-package go-autocomplete)
+
+(use-package go-mode
+  :config
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save))
+
+(use-package go-guru)
 
 (use-package helm
   :defer t
@@ -126,6 +144,8 @@
 
 (use-package rainbow-mode
   :init (add-hook 'prog-mode-hook #'rainbow-mode))
+
+(use-package restclient)
 
 (use-package rubocop)
 
