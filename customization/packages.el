@@ -36,8 +36,12 @@
   :init (load-theme 'dracula t))
 
 (use-package elpy
+  :init
+  (elpy-enable)
   :config
-  (elpy-enable))
+  (setq python-indent 4)
+  (setq python-indent-offset 4)
+  (setq python-indent-guess-indent-offset 4))
 
 (use-package enh-ruby-mode
   :bind ("TAB" . enh-ruby-indent-exp)

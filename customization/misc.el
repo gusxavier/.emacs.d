@@ -18,13 +18,17 @@
 
 ;; Indent with spaces only
 (setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
 
 ;; Enable windmove
 (windmove-default-keybindings)
 
 ;; Reload buffers on disk change
 (global-auto-revert-mode t)
+
+;; Scroll settings
+(setq scroll-step 1)
+(setq scroll-conservatively 10000)
+(setq auto-window-vscroll nil)
 
 (provide 'misc)
 ;;; misc.el ends here
