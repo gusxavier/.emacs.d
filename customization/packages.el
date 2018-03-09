@@ -76,8 +76,8 @@
 
 (use-package helm
   :defer t
-  :config
-  (setq helm-split-window-default-side 'down)
+  ;; :config
+  ;; (setq helm-split-window-default-side 'down)
   :bind (("M-x" . helm-M-x)
          ("C-x C-f" . helm-find-files)
          ("C-x b" . helm-buffers-list)))
