@@ -57,8 +57,6 @@
 
 (use-package feature-mode)
 
-(use-package fish-mode)
-
 (use-package flycheck
   :defer t
   :config
