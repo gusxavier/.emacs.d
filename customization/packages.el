@@ -133,6 +133,7 @@
   (setq projectile-mode-line
         '(:eval (format " Projectile[%s]"
                         (projectile-project-name))))
+  (add-to-list 'projectile-globally-ignored-directories "node_modules")
   :init (projectile-mode))
 
 (use-package pyenv-mode
