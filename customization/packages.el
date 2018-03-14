@@ -50,10 +50,10 @@
   (add-to-list 'auto-mode-alist
                '("\\(?:\\.rb\\|ru\\|rake\\|thor\\|jbuilder\\|gemspec\\|podspec\\|/\\(?:Gem\\|Rake\\|Cap\\|Thor\\|Vagrant\\|Guard\\|Pod\\)file\\)\\'" . enh-ruby-mode)))
 
-;; (use-package exec-path-from-shell
-;;   :init
-;;   (when (memq window-system '(mac ns x))
-;;     (exec-path-from-shell-initialize)))
+(use-package exec-path-from-shell
+  :init
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
 
 (use-package feature-mode)
 
