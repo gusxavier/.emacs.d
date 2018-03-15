@@ -10,9 +10,6 @@
 ;; Enable line numbers
 (global-linum-mode t)
 
-;; Highlight current line
-(global-hl-line-mode 1)
-
 ;; Disable startup screen
 (setq inhibit-startup-message t)
 
