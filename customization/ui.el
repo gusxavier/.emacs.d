@@ -4,6 +4,12 @@
 
 ;;; Code:
 
+(use-package dracula-theme
+  :init (load-theme 'dracula t))
+
+(use-package telephone-line
+  :init (telephone-line-mode 1))
+
 ;; Fullscreen
 (toggle-frame-maximized)
 
