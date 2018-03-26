@@ -11,12 +11,20 @@
               (set (make-local-variable 'company-backends) '(company-go))
               (company-mode))))
 
+(use-package flycheck-gometalinter
+  :ensure t
+  :config
+  (progn
+    (flycheck-gometalinter-setup)))
+
 (use-package go-mode
   :config
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save))
 
 (use-package go-guru)
+
+(use-package go-projectile)
 
 (provide 'go)
 ;;; go.el ends here
