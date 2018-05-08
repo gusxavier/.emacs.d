@@ -44,7 +44,7 @@
  '(js-indent-level 4)
  '(package-selected-packages
    (quote
-    (intero haskell-mode restclient vue-mode markdown-mode doom-themes))))
+    (flycheck-clojure spaceline intero haskell-mode restclient vue-mode markdown-mode doom-themes))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

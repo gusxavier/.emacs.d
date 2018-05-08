@@ -14,7 +14,9 @@
   (setq company-idle-delay .3)
   (setq company-echo-delay 0)
   (setq company-begin-commands '(self-insert-command))
-  :init (global-company-mode))
+  (setq-default company-dabbrev-downcase nil)
+  :init
+  (global-company-mode))
 
 (use-package exec-path-from-shell
   :init
@@ -22,7 +24,8 @@
   (exec-path-from-shell-copy-env "GOPATH"))
 
 (use-package flycheck
-  :config (global-flycheck-mode))
+  :config
+  (add-hook 'after-init-hook #'global-flycheck-mode))
 
 (use-package helm
   :defer t
@@ -74,10 +77,10 @@
   :init (global-undo-tree-mode))
 
 ;; Set command as meta key in mac
-(setq mac-option-key-is-meta nil
-      mac-command-key-is-meta t
-      mac-command-modifier 'meta
-      mac-option-modifier 'none)
+(setq-default mac-option-key-is-meta nil
+              mac-command-key-is-meta t
+              mac-command-modifier 'meta
+              mac-option-modifier 'none)
 
 ;; Store backup and autosave files in tmp dir
 (setq backup-directory-alist

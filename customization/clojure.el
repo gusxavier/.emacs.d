@@ -5,9 +5,10 @@
 ;;; Code:
 
 (use-package cider
-  :bind ("C-c M-b" . cider-repl-clear-buffer)
-  :config
-  (setq cider-lein-parameters "with-profile prod repl :headless"))
+  :bind
+  ("C-c M-b" . cider-repl-clear-buffer))
+  ;; :config
+  ;; (setq cider-lein-parameters "with-profile dev repl :headless"))
 
 (use-package clj-refactor
   :config
@@ -20,7 +21,8 @@
 (use-package clojure-mode)
 
 (use-package paredit
-  :init (add-hook 'clojure-mode-hook #'paredit-mode))
+  :config
+  (add-hook 'clojure-mode-hook #'paredit-mode))
 
 (provide 'clojure)
 ;;; clojure.el ends here
