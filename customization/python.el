@@ -24,5 +24,8 @@
 
 (use-package pyenv-mode-auto)
 
+(setq python-shell-interpreter "ipython3"
+      python-shell-interpreter-args "--simple-prompt --pprint")
+
 (provide 'python)
 ;;; python.el ends here

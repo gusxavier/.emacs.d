@@ -6,7 +6,7 @@
 
 (use-package inf-mongo
   :bind
-  ("C-c C-c" . mongo-send-buffer)
+  ("C-c C-c" . mongo-send-region)
   :config
   (setq inf-mongo-command "mongo"))
 

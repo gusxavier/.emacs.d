@@ -15,6 +15,10 @@
   (setq company-echo-delay 0)
   (setq company-begin-commands '(self-insert-command))
   (setq-default company-dabbrev-downcase nil)
+  (defvar company-backends)
+  (eval-after-load "company"
+    (do '(add-to-list 'company-backends 'company-files)
+        '(add-to-list 'company-backends 'company-anaconda)))
   :init
   (global-company-mode))
 
