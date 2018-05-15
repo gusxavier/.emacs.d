@@ -17,8 +17,8 @@
   (setq-default company-dabbrev-downcase nil)
   (defvar company-backends)
   (eval-after-load "company"
-    (do '(add-to-list 'company-backends 'company-files)
-        '(add-to-list 'company-backends 'company-anaconda)))
+    '(add-to-list 'company-backends 'company-files))
+
   :init
   (global-company-mode))
 
@@ -105,6 +105,8 @@
 (setq scroll-step 1)
 (setq scroll-conservatively 10000)
 (setq auto-window-vscroll nil)
+
+(setq explicit-shell-file-name "/bin/bash")
 
 (provide 'misc)
 ;;; misc.el ends here

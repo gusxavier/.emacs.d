@@ -30,9 +30,6 @@
     (mapc load-it (directory-files dir nil "\\.el$"))))
 (load-directory "~/.emacs.d/customization")
 
-;; Start emacs server to use emacsclient
-(server-start)
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
