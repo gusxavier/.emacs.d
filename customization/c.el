@@ -5,9 +5,9 @@
 
 ;;; Code:
 
-(use-package cquery
-  :config
-  (setq cquery-executable "/usr/bin/cquery"))
+;; (use-package cquery
+;;   :config
+;;   (setq-default cquery-executable "/usr/bin/cquery"))
 
 (setq-default c-basic-offset 4)
 
