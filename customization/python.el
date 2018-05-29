@@ -24,6 +24,10 @@
 
 (use-package pyenv-mode-auto)
 
+(use-package py-isort
+  :config
+  (add-hook 'before-save-hook 'py-isort-before-save))
+
 (setq python-shell-interpreter "ipython3"
       python-shell-interpreter-args "--simple-prompt --pprint")
 
