@@ -8,6 +8,12 @@
   :config
   (add-hook 'python-mode-hook 'anaconda-mode))
 
+(use-package auto-virtualenv
+  :config
+  (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
+  (add-hook 'window-configuration-change-hook 'auto-virtualenv-set-virtualenv)
+  (add-hook 'focus-in-hook 'auto-virtualenv-set-virtualenv))
+
 (use-package company-anaconda
   :config
   (defvar company-backends)
