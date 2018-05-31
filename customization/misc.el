@@ -48,6 +48,10 @@
 
 (use-package magit)
 
+(use-package multi-term
+  :config
+  (setq-default multi-term-program "/bin/zsh"))
+
 (use-package neotree
   :defer t
   :bind ("C-c p n" . neotree)
