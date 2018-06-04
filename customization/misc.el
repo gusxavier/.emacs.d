@@ -48,10 +48,6 @@
 
 (use-package magit)
 
-(use-package multi-term
-  :config
-  (setq-default multi-term-program "/bin/zsh"))
-
 (use-package neotree
   :defer t
   :bind ("C-c p n" . neotree)
@@ -90,6 +86,9 @@
               mac-command-modifier 'meta
               mac-option-modifier 'none)
 
+;; Remove ugly alert from macOS
+(setq visible-bell nil)
+
 ;; Store backup and autosave files in tmp dir
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
@@ -116,8 +115,8 @@
   "Renames current buffer and file it is visiting."
   (interactive)
   (let* ((name (buffer-name))
-        (filename (buffer-file-name))
-        (basename (file-name-nondirectory filename)))
+         (filename (buffer-file-name))
+         (basename (file-name-nondirectory filename)))
     (if (not (and filename (file-exists-p filename)))
         (error "Buffer '%s' is not visiting a file!" name)
       (let ((new-name (read-file-name "New name: " (file-name-directory filename) basename nil basename)))
