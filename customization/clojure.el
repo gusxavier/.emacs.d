@@ -24,5 +24,12 @@
   :config
   (add-hook 'clojure-mode-hook #'paredit-mode))
 
+(defun cider-jack-in-with-profile (profile)
+  "Ask for lein PROFILE before starting cider."
+  (interactive "sSet cider lein profiles (default: dev): ")
+  (setq-default cider-lein-parameters (format "with-profile %s repl :headless"
+                                              (or profile "dev")))
+  (cider-jack-in))
+
 (provide 'clojure)
 ;;; clojure.el ends here
