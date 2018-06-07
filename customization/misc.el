@@ -6,6 +6,10 @@
 
 (use-package all-the-icons)
 
+(use-package avy
+  :bind
+  (("M-s" . avy-goto-word-1)))
+
 (use-package better-defaults)
 
 (use-package company
@@ -26,6 +30,10 @@
   :init
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "GOPATH"))
+
+(use-package expand-region
+  :bind
+  ("C-=" . er/expand-region))
 
 (use-package flycheck
   :config
