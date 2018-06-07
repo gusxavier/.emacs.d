@@ -80,14 +80,18 @@
 (use-package undo-tree
   :init (global-undo-tree-mode))
 
+(use-package which-key
+  :init
+  (which-key-mode))
+
 ;; Set command as meta key in mac
 (setq-default mac-option-key-is-meta nil
               mac-command-key-is-meta t
               mac-command-modifier 'meta
               mac-option-modifier 'none)
 
-;; Remove ugly alert from macOS
-(setq visible-bell nil)
+;; At last some piece and quiet
+(setq ring-bell-function 'ignore)
 
 ;; Store backup and autosave files in tmp dir
 (setq backup-directory-alist

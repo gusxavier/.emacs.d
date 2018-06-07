@@ -20,6 +20,10 @@
 
 (use-package clojure-mode)
 
+(use-package helm-cider
+  :config
+  (helm-cider-mode 1))
+
 (use-package paredit
   :config
   (add-hook 'clojure-mode-hook #'paredit-mode))
