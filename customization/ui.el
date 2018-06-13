@@ -27,7 +27,7 @@
   (if window-system
       (progn
         (if (> (x-display-pixel-width) 1900)
-            (set-frame-parameter frame 'font "Hack 11")
+            (set-frame-parameter frame 'font "Hack 10")
           (set-frame-parameter frame 'font "Hack 14")))))
 (fontify-frame nil)
 (push 'fontify-frame after-make-frame-functions)
@@ -38,6 +38,10 @@
 ;; Remove top bar
 (menu-bar-mode -1)
 (tool-bar-mode -1)
+
+;; Config whitespace
+(global-whitespace-mode)
+(setq-default whitespace-style '(face trailing tabs))
 
 (provide 'ui)
 ;;; ui.el ends here
