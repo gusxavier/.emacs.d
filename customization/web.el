@@ -15,7 +15,9 @@
     (setq web-mode-script-padding 4)
     (setq web-mode-enable-auto-pairing t)
     (setq web-mode-enable-current-element-highlight t)
-    (setq web-mode-enable-auto-indentation nil))
+    (setq web-mode-enable-auto-indentation nil)
+    (setq-default web-mode-comment-formats
+                  '(("javascript" . "//"))))
   (add-hook 'web-mode-hook 'my-web-mode-hook)
   (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
