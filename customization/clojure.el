@@ -20,6 +20,8 @@
 
 (use-package clojure-mode)
 
+(use-package flycheck-joker)
+
 (use-package helm-cider
   :config
   (helm-cider-mode 1))
