@@ -16,6 +16,7 @@
     (setq web-mode-enable-auto-pairing t)
     (setq web-mode-enable-current-element-highlight t)
     (setq web-mode-enable-auto-indentation nil)
+    (setq web-mode-auto-close-style 2)
     (setq-default web-mode-comment-formats
                   '(("javascript" . "//"))))
   (add-hook 'web-mode-hook 'my-web-mode-hook)
