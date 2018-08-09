@@ -28,7 +28,7 @@
       (progn
         (if (> (x-display-pixel-width) 1900)
             (set-frame-parameter frame 'font "Hack 10")
-          (set-frame-parameter frame 'font "Hack 14")))))
+          (set-frame-parameter frame 'font "Hack 10")))))
 (fontify-frame nil)
 (push 'fontify-frame after-make-frame-functions)
 
