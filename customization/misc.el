@@ -69,6 +69,7 @@
 (use-package projectile
   :defer t
   :config
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-discover-projects-in-directory "~/workspace")
   ;; Workaround to avoid projectile making the editor very slow
   ;; https://github.com/bbatsov/projectile/issues/1183#issuecomment-335569547
