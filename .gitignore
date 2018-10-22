@@ -4,6 +4,8 @@ backups/
 elpa/
 eshell/
 ido.last
+meghanada/
+network-security.data
 projectile-bookmarks.eld
 projectile.cache
-network-security.data
+tramp
