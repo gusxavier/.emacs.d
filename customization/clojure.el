@@ -35,7 +35,7 @@
   (interactive "sSet cider lein profiles (default: dev): ")
   (setq-default cider-lein-parameters (format "with-profile %s repl :headless"
                                               (or profile "dev")))
-  (cider-jack-in))
+  (cider-jack-in ()))
 
 (provide 'clojure)
 ;;; clojure.el ends here
