@@ -5,6 +5,8 @@ elpa/
 eshell/
 ido.last
 meghanada/
+transient/
+url/
 network-security.data
 projectile-bookmarks.eld
 projectile.cache
