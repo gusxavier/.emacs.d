@@ -37,5 +37,10 @@
                                               (or profile "dev")))
   (cider-jack-in ()))
 
+;; Configure indentation for specific macros
+(define-clojure-indent
+  (fact 1)
+  (facts 1))
+
 (provide 'clojure)
 ;;; clojure.el ends here
