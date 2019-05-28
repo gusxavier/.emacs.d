@@ -7,7 +7,7 @@
 (require 'package)
 
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+             '("melpa" . "https://melpa.org/packages/"))
 (when (< emacs-major-version 24)
   ;; For important compatibility libraries like cl-lib
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
@@ -26,7 +26,7 @@
 (defun load-directory (dir)
   "Load all files in customization DIR."
   (let ((load-it (lambda (f)
-		   (load-file (concat (file-name-as-directory dir) f)))))
+                   (load-file (concat (file-name-as-directory dir) f)))))
     (mapc load-it (directory-files dir nil "\\.el$"))))
 (load-directory "~/.emacs.d/customization")
 
