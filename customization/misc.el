@@ -63,8 +63,12 @@
 
 (use-package neotree
   :defer t
-  :bind ("C-c p n" . neotree)
-  :config (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+  :bind
+  ("C-c p n" . neotree)
+  :config
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (setq-default neo-show-hidden-files t)
+  (setq neo-window-fixed-size nil))
 
 (use-package projectile
   :defer t
