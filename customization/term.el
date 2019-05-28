@@ -29,5 +29,9 @@
 
 
 
+;; Shell config
+(require 'ansi-color)
+(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+
 (provide 'term)
 ;;; term.el ends here
