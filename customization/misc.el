@@ -83,11 +83,11 @@
   (add-to-list 'projectile-globally-ignored-directories "node_modules")
   :init (projectile-mode))
 
-(use-package rainbow-delimiters
-  :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+;; (use-package rainbow-delimiters
+;;   :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
-(use-package rainbow-mode
-  :init (add-hook 'prog-mode-hook #'rainbow-mode))
+;; (use-package rainbow-mode
+;;   :init (add-hook 'prog-mode-hook #'rainbow-mode))
 
 (use-package restclient)
 
