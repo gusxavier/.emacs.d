@@ -57,9 +57,6 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 
-;; Change cursor to bar
-(setq-default cursor-type 'bar)
-
 ;; Config whitespace
 (global-whitespace-mode)
 (setq-default whitespace-style '(face trailing tabs))
