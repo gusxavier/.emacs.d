@@ -4,20 +4,20 @@
 
 ;;; Code:
 
-(use-package nofrils-acme-theme
-  :init
-  (load-theme 'nofrils-acme t))
-
-;; (use-package zenburn-theme
+;; (use-package nofrils-acme-theme
 ;;   :init
-;;   (load-theme 'zenburn t)
-;;   :config
-;;   ;; use variable-pitch fonts for some headings and titles
-;;   (setq zenburn-use-variable-pitch t)
-;;   ;; scale headings in org-mode
-;;   (setq zenburn-scale-org-headlines t)
-;;   ;; scale headings in outline-mode
-;;   (setq zenburn-scale-outline-headlines t))
+;;   (load-theme 'nofrils-acme t))
+
+(use-package zenburn-theme
+  :init
+  (load-theme 'zenburn t)
+  :config
+  ;; use variable-pitch fonts for some headings and titles
+  (setq zenburn-use-variable-pitch t)
+  ;; scale headings in org-mode
+  (setq zenburn-scale-org-headlines t)
+  ;; scale headings in outline-mode
+  (setq zenburn-scale-outline-headlines t))
 
 ;; (use-package spaceline
 ;;   :config
@@ -45,7 +45,7 @@
   (if window-system
       (progn
         (if (> (x-display-pixel-width) 1900)
-            (set-frame-parameter frame 'font "Fira Code Retina 11")
+            (set-frame-parameter frame 'font "Fira Code Retina 12")
           (set-frame-parameter frame 'font "Fira Code Retina 10")))))
 (fontify-frame nil)
 (push 'fontify-frame after-make-frame-functions)

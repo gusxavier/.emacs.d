@@ -102,6 +102,8 @@
   :init
   (which-key-mode))
 
+(use-package yasnippet)
+
 ;; Set command as meta key in mac
 (setq-default mac-option-key-is-meta nil
               mac-command-key-is-meta t
