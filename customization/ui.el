@@ -19,9 +19,9 @@
   ;; scale headings in outline-mode
   (setq zenburn-scale-outline-headlines t))
 
-;; (use-package spaceline
-;;   :config
-;;   (spaceline-emacs-theme))
+(use-package spaceline
+  :config
+  (spaceline-emacs-theme))
 
 ;; Fullscreen
 (toggle-frame-maximized)
