@@ -61,15 +61,6 @@
 
 (use-package magit)
 
-(use-package neotree
-  :defer t
-  :bind
-  ("C-c p n" . neotree)
-  :config
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-  (setq-default neo-show-hidden-files t)
-  (setq neo-window-fixed-size nil))
-
 (use-package projectile
   :defer t
   :config
@@ -83,17 +74,34 @@
   (add-to-list 'projectile-globally-ignored-directories "node_modules")
   :init (projectile-mode))
 
-;; (use-package rainbow-delimiters
-;;   :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+(use-package rainbow-delimiters
+  :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
-;; (use-package rainbow-mode
-;;   :init (add-hook 'prog-mode-hook #'rainbow-mode))
+(use-package rainbow-mode
+  :init (add-hook 'prog-mode-hook #'rainbow-mode))
 
 (use-package restclient)
 
 (use-package smartparens
   :defer t
   :init (smartparens-global-mode))
+
+(use-package treemacs
+  :defer t
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-magit
+  :after treemacs magit)
+
+(use-package treemacs-projectile
+  :after treemacs projectile)
 
 (use-package undo-tree
   :init (global-undo-tree-mode))

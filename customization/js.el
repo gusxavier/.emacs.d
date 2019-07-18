@@ -5,37 +5,39 @@
 ;;; Code:
 
 (use-package js2-mode
-  :config
-  (setq js2-basic-offset 2)
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-  (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
+  ;; :config
+  ;; (setq js2-basic-offset 2)
+  ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  ;; (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
+  )
 
-(use-package js2-refactor
-  :config
-  (add-hook 'js2-mode-hook #'js2-refactor-mode)
-  (js2r-add-keybindings-with-prefix "C-c C-r")
-  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-  (define-key js-mode-map (kbd "M-.") nil))
+;; (use-package js2-refactor
+;;   :config
+;;   (add-hook 'js2-mode-hook #'js2-refactor-mode)
+;;   (js2r-add-keybindings-with-prefix "C-c C-r")
+;;   (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+;;   (define-key js-mode-map (kbd "M-.") nil))
 
 (use-package rjsx-mode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode)))
+  ;; :config
+  ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+  )
 
-(use-package json-mode)
+;; (use-package json-mode)
 
-;; use local eslint from node_modules before global
-;; http://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
-(defun my/use-eslint-from-node-modules ()
-  (let* ((root (locate-dominating-file
-                (or (buffer-file-name) default-directory)
-                "node_modules"))
-         (eslint (and root
-                      (expand-file-name "node_modules/eslint/bin/eslint.js"
-                                        root))))
-    (when (and eslint (file-executable-p eslint))
-      (setq-local flycheck-javascript-eslint-executable eslint))))
+;; ;; use local eslint from node_modules before global
+;; ;; http://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
+;; (defun my/use-eslint-from-node-modules ()
+;;   (let* ((root (locate-dominating-file
+;;                 (or (buffer-file-name) default-directory)
+;;                 "node_modules"))
+;;          (eslint (and root
+;;                       (expand-file-name "node_modules/eslint/bin/eslint.js"
+;;                                         root))))
+;;     (when (and eslint (file-executable-p eslint))
+;;       (setq-local flycheck-javascript-eslint-executable eslint))))
 
-(add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
+;; (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
 
 (provide 'js)
 ;;; js.el ends here
