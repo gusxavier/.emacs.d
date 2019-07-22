@@ -4,36 +4,55 @@
 
 ;;; Code:
 
-;; (use-package nofrils-acme-theme
+;; (use-package zenburn-theme
 ;;   :init
-;;   (load-theme 'nofrils-acme t))
+;;   (load-theme 'zenburn t)
+;;   :config
+;;   ;; use variable-pitch fonts for some headings and titles
+;;   (setq zenburn-use-variable-pitch t)
+;;   ;; scale headings in org-mode
+;;   (setq zenburn-scale-org-headlines t)
+;;   ;; scale headings in outline-mode
+;;   (setq zenburn-scale-outline-headlines t))
 
-(use-package zenburn-theme
-  :init
-  (load-theme 'zenburn t)
+(use-package doom-themes
   :config
-  ;; use variable-pitch fonts for some headings and titles
-  (setq zenburn-use-variable-pitch t)
-  ;; scale headings in org-mode
-  (setq zenburn-scale-org-headlines t)
-  ;; scale headings in outline-mode
-  (setq zenburn-scale-outline-headlines t))
+  (load-theme 'doom-one t)
+  (doom-themes-treemacs-config))
 
 (use-package spaceline
   :config
   (spaceline-emacs-theme))
 
+(use-package centaur-tabs
+  :demand
+  :init (setq centaur-tabs-set-bar 'over)
+  :config
+  (centaur-tabs-mode t)
+  (centaur-tabs-headline-match)
+  (setq centaur-tabs-set-icons t)
+  (centaur-tabs-group-by-projectile-project)
+  :bind
+  ("C-x <C-left>" . centaur-tabs-backward)
+  ("C-x <C-right>" . centaur-tabs-forward))
+
+(use-package solaire-mode
+  :hook
+  ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+  (minibuffer-setup . solaire-mode-in-minibuffer)
+  :config
+  (solaire-global-mode +1)
+  (solaire-mode-swap-bg))
+
+(use-package nlinum
+  :init
+  (global-nlinum-mode +1))
+
 ;; Fullscreen
 (toggle-frame-maximized)
 
-;; Enable line numbers
-(global-linum-mode t)
-
 ;; Disable startup screen
 (setq inhibit-startup-message t)
-
-;; Truncate lines by default
-(setq-default truncate-lines t)
 
 ;; Show cursor position
 (column-number-mode 1)
@@ -45,8 +64,8 @@
   (if window-system
       (progn
         (if (> (x-display-pixel-width) 1900)
-            (set-frame-parameter frame 'font "Fira Code Retina 12")
-          (set-frame-parameter frame 'font "Fira Code Retina 14")))))
+            (set-frame-parameter frame 'font "Fira Code Medium 12")
+          (set-frame-parameter frame 'font "Fira Code Medium 14")))))
 (fontify-frame nil)
 (push 'fontify-frame after-make-frame-functions)
 

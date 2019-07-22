@@ -19,7 +19,6 @@
 ;; Term-mode config
 (add-hook 'term-mode-hook
           (lambda ()
-            (toggle-truncate-lines 1)
             (yas-minor-mode -1)
             (setq-default term-buffer-maximum-size 10000)
             (setq-default show-trailing-whitespace nil)

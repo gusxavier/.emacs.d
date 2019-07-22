@@ -13,6 +13,7 @@
 (use-package better-defaults)
 
 (use-package company
+  :hook (prog-mode . company-mode)
   :config
   (setq company-tooltip-limit 20)
   (setq company-idle-delay .3)
@@ -36,8 +37,9 @@
   ("C-=" . er/expand-region))
 
 (use-package flycheck
+  :hook
+  (after-init . global-flycheck-mode)
   :config
-  (add-hook 'after-init-hook #'global-flycheck-mode)
   (setq-default flycheck-disabled-checkers
                 (append flycheck-disabled-checkers
                         '(javascript-jshint
@@ -88,6 +90,14 @@
 
 (use-package treemacs
   :defer t
+  :init (treemacs)
+  :config
+  (setq treemacs-fringe-indicator-mode nil
+        treemacs-width 40
+        treemacs-silent-refresh t
+        treemacs-silent-filewatch t
+        treemacs-file-event-delay 1000
+        treemacs-file-follow-delay 0.1)
   :bind
   (:map global-map
         ("M-0"       . treemacs-select-window)
@@ -103,8 +113,8 @@
 (use-package treemacs-projectile
   :after treemacs projectile)
 
-(use-package undo-tree
-  :init (global-undo-tree-mode))
+;; (use-package undo-tree
+;;   :init (global-undo-tree-mode))
 
 (use-package which-key
   :init
@@ -121,11 +131,17 @@
 ;; At last some piece and quiet
 (setq ring-bell-function 'ignore)
 
-;; Store backup and autosave files in tmp dir
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
+;; Do not create backup files
+(setq make-backup-files nil)
+
+;; Set home as default directory
+(setq default-directory "~/")
+
+;; Do not confirm when killing process
+(setq confirm-kill-processes nil)
+
+;; Remove mouse highlight
+(setq mouse-highlight nil)
 
 ;; Indent with spaces only
 (setq-default indent-tabs-mode nil)
