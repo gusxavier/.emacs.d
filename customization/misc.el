@@ -89,12 +89,10 @@
   :init (smartparens-global-mode))
 
 (use-package treemacs
-  :defer t
-  :init (treemacs)
+  :hook
+  (after-init . treemacs)
   :config
-  (setq treemacs-fringe-indicator-mode nil
-        treemacs-width 40
-        treemacs-silent-refresh t
+  (setq treemacs-silent-refresh t
         treemacs-silent-filewatch t
         treemacs-file-event-delay 1000
         treemacs-file-follow-delay 0.1)
@@ -198,6 +196,9 @@
     (setenv "PATH" path-from-shell)
     (setq-default eshell-path-env path-from-shell) ; for eshell users
     (setq exec-path (split-string path-from-shell path-separator))))
+
+;; Start emacsclient server
+(server-start)
 
 (provide 'misc)
 ;;; misc.el ends here

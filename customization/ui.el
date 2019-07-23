@@ -20,9 +20,9 @@
   (load-theme 'doom-one t)
   (doom-themes-treemacs-config))
 
-(use-package spaceline
-  :config
-  (spaceline-emacs-theme))
+(use-package doom-modeline
+  :hook
+  (after-init . doom-modeline-mode))
 
 (use-package centaur-tabs
   :demand
@@ -79,6 +79,9 @@
 ;; Config whitespace
 (global-whitespace-mode)
 (setq-default whitespace-style '(face trailing tabs))
+
+;; Don’t compact font caches during GC.
+(setq inhibit-compacting-font-caches t)
 
 (provide 'ui)
 ;;; ui.el ends here
