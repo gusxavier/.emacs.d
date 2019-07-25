@@ -4,12 +4,11 @@
 
 ;;; Code:
 
-(use-package js2-mode
-  ;; :config
-  ;; (setq js2-basic-offset 2)
-  ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-  ;; (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
-  )
+;; (use-package js2-mode
+;;   :config
+;;   (setq js2-basic-offset 2)
+;;   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+;;   (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
 
 ;; (use-package js2-refactor
 ;;   :config
@@ -18,10 +17,9 @@
 ;;   (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
 ;;   (define-key js-mode-map (kbd "M-.") nil))
 
-(use-package rjsx-mode
-  ;; :config
-  ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
-  )
+;; (use-package rjsx-mode
+;;   :config
+;;   (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode)))
 
 ;; (use-package json-mode)
 
@@ -38,6 +36,24 @@
 ;;       (setq-local flycheck-javascript-eslint-executable eslint))))
 
 ;; (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
+
+(use-package tide
+  :after (company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+
+         (javascript-mode . tide-setup)
+         (javascript-mode . tide-hl-identifier-mode)
+
+         (js-jsx-mode . tide-setup)
+         (js-jsx-mode . tide-hl-identifier-mode)
+
+         (js-mode . tide-setup)
+         (js-mode . tide-hl-identifier-mode))
+  :config
+  (setq-default js-jsx-indent-level 2
+                js-indent-level 2
+                typescript-indent-level 2))
 
 (provide 'js)
 ;;; js.el ends here
