@@ -6,10 +6,6 @@
 
 (use-package all-the-icons)
 
-(use-package avy
-  :bind
-  (("M-s" . avy-goto-word-1)))
-
 (use-package better-defaults)
 
 (use-package company
@@ -29,8 +25,7 @@
 
 (use-package exec-path-from-shell
   :init
-  (exec-path-from-shell-initialize)
-  (exec-path-from-shell-copy-env "GOPATH"))
+  (exec-path-from-shell-initialize))
 
 (use-package expand-region
   :bind
@@ -62,6 +57,12 @@
   :init (helm-projectile-on))
 
 (use-package magit)
+
+(use-package paredit
+  :after clojure-mode
+  :hook
+  (clojure-mode . paredit-mode)
+  (emacs-lisp-mode . paredit-mode))
 
 (use-package projectile
   :defer t
@@ -111,9 +112,6 @@
 (use-package treemacs-projectile
   :after treemacs projectile)
 
-;; (use-package undo-tree
-;;   :init (global-undo-tree-mode))
-
 (use-package which-key
   :init
   (which-key-mode))
@@ -155,7 +153,11 @@
 (setq scroll-conservatively 10000)
 (setq auto-window-vscroll nil)
 
-(setq explicit-shell-file-name "/bin/bash")
+;; Remove scratch buffer
+(setq initial-scratch-message "")
+
+;; Just type y or n instead of yes or no
+(fset 'yes-or-no-p 'y-or-n-p)
 
 (defun rename-current-buffer-file ()
   "Renames current buffer and file it is visiting."
@@ -186,16 +188,6 @@
           (delete-file filename)
           (message "Deleted file %s" filename)
           (kill-buffer))))))
-
-(defun set-exec-path-from-shell-PATH ()
-  "Set PATH env variable from SHELL."
-  (let ((path-from-shell (replace-regexp-in-string
-                          "[ \t\n]*$"
-                          ""
-                          (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-    (setenv "PATH" path-from-shell)
-    (setq-default eshell-path-env path-from-shell) ; for eshell users
-    (setq exec-path (split-string path-from-shell path-separator))))
 
 ;; Start emacsclient server
 (server-start)

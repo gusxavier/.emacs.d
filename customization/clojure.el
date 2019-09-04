@@ -26,10 +26,6 @@
   :config
   (helm-cider-mode 1))
 
-(use-package paredit
-  :config
-  (add-hook 'clojure-mode-hook #'paredit-mode))
-
 (defun cider-jack-in-with-profile (profile)
   "Ask for lein PROFILE before starting cider."
   (interactive "sSet cider lein profiles (default: dev): ")
