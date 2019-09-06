@@ -4,15 +4,6 @@
 
 ;;; Code:
 
-(use-package doom-themes
-  :config
-  (load-theme 'doom-one t)
-  (doom-themes-treemacs-config))
-
-(use-package doom-modeline
-  :hook
-  (after-init . doom-modeline-mode))
-
 (use-package centaur-tabs
   :demand
   :init (setq centaur-tabs-set-bar 'over)
@@ -24,6 +15,20 @@
   :bind
   ("C-x <C-left>" . centaur-tabs-backward)
   ("C-x <C-right>" . centaur-tabs-forward))
+
+(use-package doom-themes
+  :config
+  (load-theme 'doom-one t)
+  (doom-themes-treemacs-config))
+
+(use-package doom-modeline
+  :hook
+  (after-init . doom-modeline-mode))
+
+(use-package dashboard
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-startup-banner 'logo))
 
 (use-package solaire-mode
   :hook
@@ -42,6 +47,13 @@
 
 ;; Disable startup screen
 (setq inhibit-startup-message t)
+
+;; Do not open default buffers on startup
+(setq initial-buffer-choice nil)
+
+;; Don't show *Buffer list* when opening multiple files
+;; at the same time
+(setq inhibit-startup-buffer-menu t)
 
 ;; Show cursor position
 (column-number-mode 1)
