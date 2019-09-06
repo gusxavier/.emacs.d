@@ -43,7 +43,7 @@
  '(js-indent-level 4)
  '(package-selected-packages
    (quote
-    (dashboard page-break-lines tide doom-modeline nlinum nlinum-mode diminish solaire-mode centaur-tabs docker dockerfile-mode helm-lsp lsp-python-ms lsp-ui-flycheck lsp-java lsp-ui company-lsp dap-mode nofrils-acme-theme zenburn-theme meghanada rjsx-mode flycheck-joker expand-region which-key helm-cider py-isort lsp-mode cquery company-anaconda flycheck-clojure spaceline intero haskell-mode restclient vue-mode markdown-mode doom-themes))))
+    (dashboard page-break-lines tide doom-modeline nlinum nlinum-mode diminish solaire-mode centaur-tabs docker dockerfile-mode helm-lsp lsp-python-ms lsp-ui-flycheck lsp-java company-lsp dap-mode nofrils-acme-theme zenburn-theme meghanada rjsx-mode flycheck-joker expand-region which-key helm-cider py-isort lsp-mode cquery company-anaconda flycheck-clojure spaceline intero haskell-mode restclient vue-mode markdown-mode doom-themes))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -21,9 +21,6 @@
 
 (use-package hydra)
 
-(use-package lsp-ui
-  :commands lsp-ui-mode)
-
 (use-package dap-mode
   :after lsp-mode
   :config
