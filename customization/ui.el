@@ -13,8 +13,10 @@
   (setq centaur-tabs-set-icons t)
   (centaur-tabs-group-by-projectile-project)
   :bind
-  ("C-x <C-left>" . centaur-tabs-backward)
-  ("C-x <C-right>" . centaur-tabs-forward))
+  ("C-x <left>" . centaur-tabs-backward)
+  ("C-x <left>" . centaur-tabs-backward)
+  ("C-x <right>" . centaur-tabs-forward)
+  ("C-x <right>" . centaur-tabs-forward))
 
 (use-package doom-themes
   :config
