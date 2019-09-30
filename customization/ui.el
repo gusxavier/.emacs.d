@@ -20,7 +20,7 @@
 
 (use-package doom-themes
   :config
-  (load-theme 'doom-one t)
+  (load-theme 'doom-nord t)
   (doom-themes-treemacs-config))
 
 (use-package doom-modeline
@@ -67,8 +67,8 @@
   (if window-system
       (progn
         (if (> (x-display-pixel-width) 1900)
-            (set-frame-parameter frame 'font "Fira Code Medium 12")
-          (set-frame-parameter frame 'font "Fira Code Medium 14")))))
+            (set-frame-parameter frame 'font "Fira Code Retina 14")
+          (set-frame-parameter frame 'font "Fira Code Retina 14")))))
 (fontify-frame nil)
 (push 'fontify-frame after-make-frame-functions)
 
