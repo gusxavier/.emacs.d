@@ -6,8 +6,9 @@
 
 (use-package cider
   :bind
-  ("C-c M-b" . cider-repl-clear-buffer))
-  ;; :config
+  ("C-c M-b" . cider-repl-clear-buffer)
+  :config
+  (setq cider-prompt-for-symbol nil))
   ;; (setq cider-lein-parameters "with-profile dev repl :headless"))
 
 (use-package clj-refactor
