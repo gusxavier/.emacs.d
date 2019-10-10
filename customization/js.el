@@ -39,6 +39,7 @@
 
 (use-package tide
   :after (company flycheck)
+  :bind (("M-?" . tide-references))
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
 
