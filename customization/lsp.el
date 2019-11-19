@@ -7,9 +7,10 @@
 (use-package lsp-mode
   :commands lsp
   :bind
-  (("M-." . lsp-find-definition)
-   ("M-}" . lsp-find-implementation)
-   ("M-ç" . lsp-find-references))
+  (:map lsp-mode-map
+        ("M-." . lsp-find-definition)
+        ("M-}" . lsp-find-implementation)
+        ("M-ç" . lsp-find-references))
   :config
   (setq lsp-prefer-flymake nil))
 
