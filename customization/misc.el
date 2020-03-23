@@ -93,34 +93,9 @@
   :defer t
   :init (smartparens-global-mode))
 
-(use-package treemacs
-  :hook
-  (after-init . treemacs)
-  :config
-  (setq treemacs-silent-refresh t
-        treemacs-silent-filewatch t
-        treemacs-file-event-delay 1000
-        treemacs-file-follow-delay 0.1)
-  :bind
-  (:map global-map
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
-
-(use-package treemacs-magit
-  :after treemacs magit)
-
-(use-package treemacs-projectile
-  :after treemacs projectile)
-
 (use-package which-key
   :init
   (which-key-mode))
-
-(use-package yasnippet)
 
 ;; Set command as meta key in mac
 (setq-default mac-option-key-is-meta nil
