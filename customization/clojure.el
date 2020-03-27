@@ -18,9 +18,13 @@
     (cljr-add-keybindings-with-prefix "C-c C-m"))
   (add-hook 'clojure-mode-hook 'my-clojure-mode-hook))
 
-(use-package clojure-mode)
+(use-package clojure-mode
+  :config
+  (setq clojure-align-forms-automatically t)
+  (setq cljr-project-clean-prompt nil)
+  (require 'flycheck-clj-kondo))
 
-(use-package flycheck-joker)
+(use-package flycheck-clj-kondo)
 
 (use-package helm-cider
   :config
