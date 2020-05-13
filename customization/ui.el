@@ -52,9 +52,7 @@
   (interactive)
   (if window-system
       (progn
-        (if (> (x-display-pixel-width) 1900)
-            (set-frame-parameter frame 'font "Fira Code Retina 12")
-          (set-frame-parameter frame 'font "Fira Code Retina 14")))))
+        (set-frame-parameter frame 'font "Fira Code Retina 14"))))
 (fontify-frame nil)
 (push 'fontify-frame after-make-frame-functions)
 

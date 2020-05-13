@@ -60,7 +60,7 @@
 
 (use-package page-break-lines
   :config
-  (turn-on-page-break-lines-mode))
+  (page-break-lines-mode))
 
 (use-package paredit
   :after clojure-mode

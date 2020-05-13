@@ -6,7 +6,7 @@
 
 (use-package cider
   :bind
-  (:map cider-mode-map ("C-c M-b" . cider-repl-clear-buffer))
+  (("C-c M-b" . cider-repl-clear-buffer))
   :config
   (setq cider-prompt-for-symbol nil))
 
@@ -22,7 +22,10 @@
   :config
   (setq clojure-align-forms-automatically t)
   (setq cljr-project-clean-prompt nil)
-  (require 'flycheck-clj-kondo))
+  (require 'flycheck-clj-kondo)
+  (defun clojure-before-save-hook ()
+    (clojure-sort-ns))
+  (add-hook 'before-save-hook #'clojure-before-save-hook))
 
 (use-package flycheck-clj-kondo)
 
