@@ -4,34 +4,15 @@
 
 ;;; Code:
 
-(use-package doom-themes
-  :config
-  (load-theme 'doom-nord t)
-  (doom-themes-treemacs-config))
-
-(use-package doom-modeline
-  :hook
-  (after-init . doom-modeline-mode))
-
-(use-package dashboard
-  :config
-  (dashboard-setup-startup-hook)
-  (setq dashboard-startup-banner 'logo))
-
-(use-package solaire-mode
-  :hook
-  ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
-  (minibuffer-setup . solaire-mode-in-minibuffer)
-  :config
-  (solaire-global-mode +1)
-  (solaire-mode-swap-bg))
-
-(use-package nlinum
+;; Current theme
+(use-package zenburn-theme
   :init
-  (global-nlinum-mode +1))
+  (load-theme 'zenburn t))
 
-;; Fullscreen
-(toggle-frame-maximized)
+;; Highlight current line on big jumps
+(use-package beacon
+  :init
+  (beacon-mode +1))
 
 ;; Disable startup screen
 (setq inhibit-startup-message t)
@@ -44,17 +25,15 @@
 (setq inhibit-startup-buffer-menu t)
 
 ;; Show cursor position
-(column-number-mode 1)
+(line-number-mode t)
+(column-number-mode t)
 
 ;; Font config
-(defun fontify-frame (frame)
-  "Define the font size based on FRAME resolution."
-  (interactive)
-  (if window-system
-      (progn
-        (set-frame-parameter frame 'font "Fira Code Retina 14"))))
-(fontify-frame nil)
-(push 'fontify-frame after-make-frame-functions)
+(set-language-environment "UTF-8")
+(set-default-coding-systems 'utf-8-unix)
+(when (member "DejaVu Sans Mono" (font-family-list))
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono")
+  (set-face-attribute 'default nil :height 120))
 
 ;; Remove scroll bar
 (scroll-bar-mode -1)
@@ -63,12 +42,14 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 
-;; Config whitespace
-(global-whitespace-mode)
-(setq-default whitespace-style '(face trailing tabs))
+;; Remove blinking cursor
+(blink-cursor-mode -1)
 
-;; Don’t compact font caches during GC.
-(setq inhibit-compacting-font-caches t)
+;; Highlight parens
+(show-paren-mode t)
+
+;; Highlight current line
+(global-hl-line-mode t)
 
 (provide 'ui)
 ;;; ui.el ends here

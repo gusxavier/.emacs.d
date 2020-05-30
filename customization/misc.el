@@ -4,57 +4,56 @@
 
 ;;; Code:
 
-(use-package all-the-icons)
+;; Use ag inside emacs
+(use-package ag)
 
-(use-package better-defaults)
-
+;; Code auto complete
 (use-package company
-  :hook (prog-mode . company-mode)
+  :diminish
+  :init
+  (global-company-mode 1)
+  :hook
+  (prog-mode . company-mode)
   :config
-  (setq company-tooltip-limit 20)
-  (setq company-idle-delay .3)
-  (setq company-echo-delay 0)
-  (setq company-begin-commands '(self-insert-command))
-  (setq-default company-dabbrev-downcase nil)
-  (defvar company-backends)
-  (eval-after-load "company"
-    '(add-to-list 'company-backends 'company-files))
+  (setq company-tooltip-limit 10
+        company-idle-delay 0.5
+        company-show-numbers t
+        company-minimum-prefix-length 2
+        company-tooltip-align-annotations t
+        company-tooltip-flip-when-above t)
+  (setq-default company-dabbrev-downcase nil))
 
+(use-package counsel
+  :diminish
   :init
-  (global-company-mode))
+  (counsel-mode t))
 
-(use-package exec-path-from-shell
+(use-package counsel-projectile
+  :after projectile
   :init
-  (exec-path-from-shell-initialize))
+  (counsel-projectile-mode t))
 
 (use-package expand-region
   :bind
   ("C-=" . er/expand-region))
 
+(use-package flx
+  :config
+  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy))))
+
 (use-package flycheck
   :hook
-  (after-init . global-flycheck-mode)
+  (after-init . global-flycheck-mode))
+
+(use-package ivy
+  :diminish
+  :init
+  (ivy-mode 1)
   :config
-  (setq-default flycheck-disabled-checkers
-                (append flycheck-disabled-checkers
-                        '(javascript-jshint
-                          json-jsinlist)))
-  (flycheck-add-mode 'javascript-eslint 'web-mode))
-
-(use-package helm
-  :defer t
-  :bind (("M-x" . helm-M-x)
-         ("C-x C-f" . helm-find-files)
-         ("C-x b" . helm-buffers-list)))
-
-(use-package helm-ag
-  :config
-  (setq helm-ag-use-grep-ignore-list '("\\node_modules\\'"))
-  :defer t)
-
-(use-package helm-projectile
-  :defer t
-  :init (helm-projectile-on))
+  (setq ivy-use-virtual-buffers t
+        enable-recursive-minibuffers t)
+  ;; Use enter to navigate instead opening dired
+  (define-key ivy-minibuffer-map (kbd "C-m") 'ivy-alt-done))
 
 (use-package magit)
 
@@ -62,14 +61,10 @@
   :config
   (page-break-lines-mode))
 
-(use-package paredit
-  :after clojure-mode
-  :hook
-  (clojure-mode . paredit-mode)
-  (emacs-lisp-mode . paredit-mode))
-
 (use-package projectile
-  :defer t
+  :diminish
+  :init
+  (projectile-mode t)
   :config
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-discover-projects-in-directory "~/workspace")
@@ -78,24 +73,21 @@
   (setq projectile-mode-line
         '(:eval (format " Projectile[%s]"
                         (projectile-project-name))))
-  (add-to-list 'projectile-globally-ignored-directories "node_modules")
-  :init (projectile-mode))
+  (add-to-list 'projectile-globally-ignored-directories "node_modules"))
 
 (use-package rainbow-delimiters
-  :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-
-(use-package rainbow-mode
-  :init (add-hook 'prog-mode-hook #'rainbow-mode))
+  :init
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 (use-package restclient)
 
-(use-package smartparens
-  :defer t
-  :init (smartparens-global-mode))
+(use-package swiper
+  :config
+  (global-set-key "\C-s" 'swiper))
 
 (use-package which-key
   :init
-  (which-key-mode))
+  (which-key-mode +1))
 
 ;; Set command as meta key in mac
 (setq-default mac-option-key-is-meta nil
@@ -127,33 +119,31 @@
 ;; Reload buffers on disk change
 (global-auto-revert-mode t)
 
-;; Scroll settings
-(setq scroll-step 1)
-(setq scroll-conservatively 10000)
-(setq auto-window-vscroll nil)
+;; Better scrolling
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1
+      auto-window-vscroll nil)
 
-;; Remove scratch buffer
-(setq initial-scratch-message "")
+;; Config whitespace
+(global-whitespace-mode)
+(setq-default whitespace-style '(face trailing tabs))
 
-(defun remove-scratch-buffer ()
-  "Remove *scratch* from buffer after the mode has been set."
-  (if (get-buffer "*scratch*")
-      (kill-buffer "*scratch*")))
-(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
-
-;; Removes *messages* from the buffer.
-;; (setq-default message-log-max nil)
-;; (kill-buffer "*Messages*")
+;; Don’t compact font caches during GC.
+(setq inhibit-compacting-font-caches t)
 
 ;; Removes *Completions* from buffer after you've opened a file.
 (add-hook 'minibuffer-exit-hook
-      '(lambda ()
-         (let ((buffer "*Completions*"))
-           (and (get-buffer buffer)
-                (kill-buffer buffer)))))
+          '(lambda ()
+             (let ((buffer "*Completions*"))
+               (and (get-buffer buffer)
+                    (kill-buffer buffer)))))
 
 ;; Just type y or n instead of yes or no
 (fset 'yes-or-no-p 'y-or-n-p)
+
+;; Avoid writing package-selected-packages on init.el
+(defun package--save-selected-packages (&rest opt) nil)
 
 (defun rename-current-buffer-file ()
   "Renames current buffer and file it is visiting."
@@ -184,9 +174,6 @@
           (delete-file filename)
           (message "Deleted file %s" filename)
           (kill-buffer))))))
-
-;; Start emacsclient server
-(server-start)
 
 (provide 'misc)
 ;;; misc.el ends here

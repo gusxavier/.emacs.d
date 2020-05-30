@@ -5,40 +5,24 @@
 ;;; Code:
 
 (use-package cider
-  :bind
-  (("C-c M-b" . cider-repl-clear-buffer))
   :config
   (setq cider-prompt-for-symbol nil))
-
-(use-package clj-refactor
-  :config
-  (defun my-clojure-mode-hook ()
-    (clj-refactor-mode 1)
-    (yas-minor-mode 1)
-    (cljr-add-keybindings-with-prefix "C-c C-m"))
-  (add-hook 'clojure-mode-hook 'my-clojure-mode-hook))
 
 (use-package clojure-mode
   :config
   (setq clojure-align-forms-automatically t)
-  (setq cljr-project-clean-prompt nil)
-  (require 'flycheck-clj-kondo)
-  (defun clojure-before-save-hook ()
-    (clojure-sort-ns))
-  (add-hook 'before-save-hook #'clojure-before-save-hook))
+  (require 'flycheck-clj-kondo))
 
 (use-package flycheck-clj-kondo)
 
-(use-package helm-cider
+(use-package smartparens
   :config
-  (helm-cider-mode 1))
-
-(defun cider-jack-in-with-profile (profile)
-  "Ask for lein PROFILE before starting cider."
-  (interactive "sSet cider lein profiles (default: dev): ")
-  (setq-default cider-lein-parameters (format "with-profile %s repl :headless"
-                                              (or profile "dev")))
-  (cider-jack-in ()))
+  (setq sp-base-key-bindings 'paredit
+        sp-autoskip-closing-pair 'always
+        sp-hybrid-kill-entire-symbol nil)
+  (sp-use-paredit-bindings)
+  :init
+  (smartparens-global-strict-mode +1))
 
 ;; Configure indentation for specific macros
 (define-clojure-indent
