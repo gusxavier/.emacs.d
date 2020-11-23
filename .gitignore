@@ -19,3 +19,4 @@ tramp
 workspace/
 .cache/
 places
+session.*

@@ -89,6 +89,9 @@
   :init
   (which-key-mode +1))
 
+(use-package yasnippet
+  :config (yas-global-mode))
+
 ;; Set command as meta key in mac
 (setq-default mac-option-key-is-meta nil
               mac-command-key-is-meta t
@@ -144,6 +147,10 @@
 
 ;; Avoid writing package-selected-packages on init.el
 (defun package--save-selected-packages (&rest opt) nil)
+
+;; Avoid generating auto save files
+(setq auto-save-default nil)
+(setq create-lockfiles nil)
 
 (defun rename-current-buffer-file ()
   "Renames current buffer and file it is visiting."

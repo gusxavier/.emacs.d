@@ -5,6 +5,8 @@
 ;;; Code:
 
 (use-package cider
+  :bind
+  ("C-." . cider-browse-spec)
   :config
   (setq cider-prompt-for-symbol nil))
 
@@ -12,6 +14,13 @@
   :config
   (setq clojure-align-forms-automatically t)
   (require 'flycheck-clj-kondo))
+
+(use-package clj-refactor
+  :hook
+  (clojure-mode . clj-refactor-mode)
+  :config
+  (setq cljr-warn-on-eval nil)
+  (cljr-add-keybindings-with-prefix "C-c C-m"))
 
 (use-package flycheck-clj-kondo)
 

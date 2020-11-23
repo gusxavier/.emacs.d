@@ -5,9 +5,14 @@
 ;;; Code:
 
 ;; Current theme
-(use-package zenburn-theme
+
+;; (use-package zenburn-theme
+;;   :init
+;;   (load-theme 'zenburn t))
+
+(use-package atom-one-dark-theme
   :init
-  (load-theme 'zenburn t))
+  (load-theme 'atom-one-dark t))
 
 ;; Highlight current line on big jumps
 (use-package beacon
@@ -31,8 +36,8 @@
 ;; Font config
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8-unix)
-(when (member "DejaVu Sans Mono" (font-family-list))
-  (set-face-attribute 'default nil :font "DejaVu Sans Mono")
+(when (member "Source Code Pro" (font-family-list))
+  (set-face-attribute 'default nil :font "Source Code Pro")
   (set-face-attribute 'default nil :height 120))
 
 ;; Remove scroll bar
@@ -50,6 +55,9 @@
 
 ;; Highlight current line
 (global-hl-line-mode t)
+
+;; Show line numbers
+(global-display-line-numbers-mode t)
 
 (provide 'ui)
 ;;; ui.el ends here
