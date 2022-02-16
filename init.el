@@ -24,9 +24,14 @@
 (setq use-package-always-ensure t)
 
 ;; Avoid writing package-selected-packages on init.el
-(defun package--save-selected-packages (&rest opt) nil)
+(defun package--save-selected-packages (&rest _opt)
+  "Avoid writing package-selected-packages on init.el."
+  nil)
 
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
+
+;; Use ag in projectile search
+(use-package ag)
 
 ;; Auto complete
 (use-package company
@@ -38,7 +43,7 @@
   :config
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 1)
-  (setq company-selection-wrap-arount t))
+  (setq company-selection-wrap-around t))
 
 (use-package exec-path-from-shell
   :init
@@ -53,6 +58,9 @@
 (use-package flycheck
   :init
   (global-flycheck-mode))
+
+;; Paredit (keep parenthesis balanced)
+(use-package paredit)
 
 ;; Project manager
 (use-package projectile
@@ -100,6 +108,18 @@
 (setq auto-save-default nil)
 (setq create-lockfiles nil)
 
+;; Set command as meta key in mac
+(setq-default mac-option-key-is-meta nil
+              mac-command-key-is-meta t
+              mac-command-modifier 'meta
+              mac-option-modifier 'none)
+
+;; Ask before exit
+(setq confirm-kill-emacs 'y-or-n-p)
+
+;; At last some piece and quiet
+(setq ring-bell-function 'ignore)
+
 ;;;;;;;;;;;;;;;;;;;;; UI
 
 ;; Show icons
@@ -112,17 +132,14 @@
   :init
   (load-theme 'zenburn t))
 
-;; (use-package modus-themes
-;;   :init
-;;   (modus-themes-load-themes)
-;;   :config
-;;   (modus-themes-load-vivendi)
-;;   :bind ("<f5>" . modus-themes-toggle))
-
 ;; Font
-(when (member "JetBrains Mono" (font-family-list))
-  (set-face-attribute 'default nil :font "JetBrains Mono")
-  (set-face-attribute 'default nil :height 130))
+(if (memq window-system '(mac ns x))
+  (when (member "Monaco" (font-family-list))
+    (set-face-attribute 'default nil :font "Monaco")
+    (set-face-attribute 'default nil :height 140))
+  (when (member "JetBrains Mono" (font-family-list))
+    (set-face-attribute 'default nil :font "JetBrains Mono")
+    (set-face-attribute 'default nil :height 130)))
 
 ;; Set font encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -144,6 +161,10 @@
 ;; Show line numbers
 (global-display-line-numbers-mode t)
 
+;; Show cursor position
+(line-number-mode t)
+(column-number-mode t)
+
 ;; Smooth scrolling
 (setq scroll-margin 0
       scroll-conservatively 100000
@@ -156,22 +177,90 @@
 ;;;;;;;;;;;;;;;;;;;;; LSP
 
 (use-package lsp-mode
-  :hook (((go-mode) . lsp-deferred)
-	 (before-save . lsp-format-buffer)
-	 (before-save . lsp-organize-imports))
+  :bind
+  ("M-." . lsp-find-definition)
+  :hook
+  (((go-mode clojure-mode clojurec-mode clojurescript-mode) . lsp-deferred)
+   ;; (before-save . lsp-format-buffer)
+   ;; (before-save . lsp-organize-imports)
+   )
   :config
+  (setq-default lsp-auto-guess-root t)
+  (setq-default lsp-log-io nil)
+  (setq-default lsp-restart 'auto-restart)
+  (setq-default lsp-enable-symbol-highlighting nil)
+  (setq-default lsp-enable-on-type-formatting nil)
+  (setq-default lsp-signature-auto-activate nil)
+  (setq-default lsp-signature-render-documentation nil)
+  (setq-default lsp-eldoc-hook nil)
+  (setq-default lsp-modeline-code-actions-enable nil)
+  (setq-default lsp-modeline-diagnostics-enable nil)
+  (setq-default lsp-headerline-breadcrumb-enable nil)
+  (setq-default lsp-semantic-tokens-enable nil)
+  (setq-default lsp-enable-folding nil)
+  (setq-default lsp-enable-imenu nil)
+  (setq-default lsp-enable-snippet nil)
+  (setq-default read-process-output-max (* 1024 1024)) ;; 1MB
+  (setq-default lsp-idle-delay 0.5)
   (lsp-enable-which-key-integration t)
   :commands lsp)
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :config
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-doc-header t)
-  (setq lsp-ui-doc-include-signuature t)
-  (setq lsp-ui-doc-border (face-foreground 'default))
-  (setq lsp-ui-sideline-show-code-actions t)
-  (setq lsp-ui-sideline-delay 0.05))
+  (setq-default lsp-ui-doc-enable t)
+  (setq-default lsp-ui-sideline-enable nil)
+  (setq-default lsp-ui-doc-header t)
+  (setq-default lsp-ui-doc-include-signuature t)
+  (setq-default lsp-ui-doc-border (face-foreground 'default))
+  (setq-default lsp-ui-sideline-delay 0.05))
+
+;;;;;;;;;;;;;;;;;;;;; CLOJURE
+
+(use-package clojure-mode
+  :hook
+  (clojure-mode . paredit-mode)
+  :config
+  (setq clojure-align-forms-automatically t))
+
+;; Better visualization of test results
+(defun custom--cider-ansi-color-string-p (value)
+  "Check for extra ANSI chars on VALUE."
+  (or (string-match "^\\[" value)
+      (string-match "\u001B\\[" value)))
+
+;; Improve matcher-combinators assertion results
+(defun custom--cider-font-lock-as (mode string)
+  "Use MODE to font-lock the STRING.
+Copied from cider-util.el, it does the same but doesn't remove
+string properties and doesn't check for valid clojure-code, fixing
+matcher-combinators assertions."
+  (let ((string (if (cider-ansi-color-string-p string)
+                    (ansi-color-apply string)
+                  string)))
+    (if (or (null cider-font-lock-max-length)
+            (< (length string) cider-font-lock-max-length))
+        (with-current-buffer (cider--make-buffer-for-mode mode)
+          (erase-buffer)
+          (insert string)
+          (font-lock-fontify-region (point-min) (point-max))
+          (buffer-string))
+      string)))
+
+(use-package cider
+  :bind
+  ("C-c M-b" . cider-repl-clear-buffer)
+  :config
+  (setq-default cider-prompt-for-symbol nil)
+  (unbind-key "M-." cider-mode-map)
+  (unbind-key "M-," cider-mode-map)
+  (setq cider-test-defining-forms
+        (append cider-test-defining-forms '("defflow"
+                                            "defflow-i18n"
+                                            "defflow-loopback-false"
+                                            "defflow-new-system!")))
+  (advice-add 'cider-ansi-color-string-p :override #'custom--cider-ansi-color-string-p)
+  (advice-add 'cider-font-lock-as :override #'custom--cider-font-lock-as))
 
 ;;;;;;;;;;;;;;;;;;;;; GOLANG
 
@@ -194,4 +283,3 @@
 (provide 'init)
 
 ;;; init.el ends here
-
