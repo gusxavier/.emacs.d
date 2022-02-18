@@ -59,6 +59,29 @@
   :init
   (global-flycheck-mode))
 
+;; Minibuffer completion (alternative to ido and helm)
+(use-package ivy
+  :init
+  (ivy-mode 1)
+  :config
+  (setq ivy-re-builders-alist
+      '((t . ivy--regex-fuzzy)))
+  (setq-default ivy-use-virtual-buffers t
+		ivy-dynamic-exhibit-delay-ms 250
+		ivy-re-builders-alist '((t . ivy--regex-fuzzy))
+		;; ivy-initial-inputs-alist nil
+		)
+  ;; Use enter to navigate instead opening dired
+  (define-key ivy-minibuffer-map (kbd "C-m") 'ivy-alt-done))
+
+(use-package counsel
+  :init
+  (counsel-mode t))
+
+(use-package swiper
+  :config
+  (global-set-key "\C-s" 'swiper))
+
 ;; Paredit (keep parenthesis balanced)
 (use-package paredit)
 
@@ -70,19 +93,15 @@
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (add-to-list 'projectile-globally-ignored-directories "node_modules"))
 
+(use-package counsel-projectile
+  :after projectile
+  :init
+  (counsel-projectile-mode t))
+
 ;; Show each delimiter (parenthesis, brackets, etc) with different colors
 (use-package rainbow-delimiters
   :hook
   (prog-mode . rainbow-delimiters-mode))
-
-;; Minibuffer completion (alternative to ido, ivy and helm)
-(use-package selectrum
-  :init
-  (selectrum-mode +1))
-
-(use-package hotfuzz
-  :init
-  (hotfuzz-selectrum-mode +1))
 
 ;; Show command suggestions
 (use-package which-key
