@@ -199,10 +199,11 @@
   :bind
   ("M-." . lsp-find-definition)
   :hook
-  (((go-mode clojure-mode clojurec-mode clojurescript-mode) . lsp-deferred)
-   ;; (before-save . lsp-format-buffer)
-   ;; (before-save . lsp-organize-imports)
-   )
+  (((go-mode
+     clojure-mode
+     clojurec-mode
+     clojurescript-mode
+     java-mode) . lsp-deferred))
   :config
   (setq-default lsp-auto-guess-root t)
   (setq-default lsp-log-io nil)
@@ -227,10 +228,10 @@
 (use-package lsp-ui
   :commands lsp-ui-mode
   :config
-  (setq-default lsp-ui-doc-enable t)
+  (setq-default lsp-ui-doc-enable nil)
   (setq-default lsp-ui-sideline-enable nil)
-  (setq-default lsp-ui-doc-header t)
-  (setq-default lsp-ui-doc-include-signuature t)
+  (setq-default lsp-ui-doc-header nil)
+  (setq-default lsp-ui-doc-include-signuature nil)
   (setq-default lsp-ui-doc-border (face-foreground 'default))
   (setq-default lsp-ui-sideline-delay 0.05))
 
@@ -284,6 +285,11 @@ matcher-combinators assertions."
 ;;;;;;;;;;;;;;;;;;;;; GOLANG
 
 (use-package go-mode)
+
+;;;;;;;;;;;;;;;;;;;;; JAVA
+
+(use-package lsp-java
+  :after lsp)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
