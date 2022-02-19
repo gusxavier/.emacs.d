@@ -129,6 +129,7 @@
 ;; Avoid generating auto save files
 (setq auto-save-default nil)
 (setq create-lockfiles nil)
+(setq make-backup-files nil)
 
 ;; Set command as meta key in mac
 (setq-default mac-option-key-is-meta nil
@@ -141,6 +142,9 @@
 
 ;; At last some piece and quiet
 (setq ring-bell-function 'ignore)
+
+;; Remove blinking cursor
+(blink-cursor-mode -1)
 
 ;;;;;;;;;;;;;;;;;;;;; UI
 
@@ -178,7 +182,9 @@
 (tool-bar-mode -1)
 
 ;; Highlight current line
-(global-hl-line-mode t)
+;; (global-hl-line-mode t)
+(add-hook 'prog-mode-hook #'hl-line-mode)
+(add-hook 'text-mode-hook #'hl-line-mode)
 
 ;; Show line numbers
 (global-display-line-numbers-mode t)
