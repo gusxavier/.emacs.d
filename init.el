@@ -212,7 +212,9 @@
      clojure-mode
      clojurec-mode
      clojurescript-mode
-     java-mode) . lsp-deferred))
+     java-mode
+     rust-mode
+     rustic-mode) . lsp-deferred))
   :config
   (setq-default lsp-auto-guess-root t)
   (setq-default lsp-log-io nil)
