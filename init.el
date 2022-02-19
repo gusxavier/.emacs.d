@@ -103,6 +103,9 @@
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
+;; Terminal inside emacs
+(use-package vterm)
+
 ;; Show command suggestions
 (use-package which-key
   :init
