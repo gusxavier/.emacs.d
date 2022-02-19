@@ -20,3 +20,4 @@ workspace/
 .cache/
 places
 session.*
+eln-cache/
