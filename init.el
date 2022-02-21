@@ -35,6 +35,7 @@
 
 ;; Auto complete
 (use-package company
+  :diminish
   :bind (:map company-active-map
 	      ("C-n" . company-select-next)
 	      ("C-p" . company-select-previous))
@@ -44,6 +45,10 @@
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 1)
   (setq company-selection-wrap-around t))
+
+(use-package diminish
+  :init
+  (diminish 'eldoc-mode))
 
 (use-package exec-path-from-shell
   :init
@@ -61,6 +66,7 @@
 
 ;; Minibuffer completion (alternative to ido and helm)
 (use-package ivy
+  :diminish
   :init
   (ivy-mode 1)
   :config
@@ -68,13 +74,12 @@
       '((t . ivy--regex-fuzzy)))
   (setq-default ivy-use-virtual-buffers t
 		ivy-dynamic-exhibit-delay-ms 250
-		ivy-re-builders-alist '((t . ivy--regex-fuzzy))
-		;; ivy-initial-inputs-alist nil
-		)
+		ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
   ;; Use enter to navigate instead opening dired
   (define-key ivy-minibuffer-map (kbd "C-m") 'ivy-alt-done))
 
 (use-package counsel
+  :diminish
   :init
   (counsel-mode t))
 
