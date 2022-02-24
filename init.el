@@ -175,7 +175,7 @@
 (if (memq window-system '(mac ns x))
   (when (member "Monaco" (font-family-list))
     (set-face-attribute 'default nil :font "Monaco")
-    (set-face-attribute 'default nil :height 140))
+    (set-face-attribute 'default nil :height 150))
   (when (member "JetBrains Mono" (font-family-list))
     (set-face-attribute 'default nil :font "JetBrains Mono")
     (set-face-attribute 'default nil :height 130)))
