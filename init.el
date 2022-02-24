@@ -108,6 +108,14 @@
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
+;; File tree sidebar
+(use-package treemacs
+  :bind ("<f8>" . treemacs))
+
+(use-package treemacs-all-the-icons
+  :config
+  (treemacs-load-all-the-icons-with-workaround-font t))
+
 ;; Terminal inside emacs
 (use-package vterm)
 
