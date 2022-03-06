@@ -61,34 +61,22 @@
 
 ;; Syntax checker
 (use-package flycheck
+  :diminish
   :init
   (global-flycheck-mode))
 
-;; Minibuffer completion (alternative to ido and helm)
-(use-package ivy
+;; Minibuffer completion
+(use-package helm
   :diminish
   :init
-  (ivy-mode 1)
+  (helm-mode t)
   :config
-  (setq ivy-re-builders-alist
-      '((t . ivy--regex-fuzzy)))
-  (setq-default ivy-use-virtual-buffers t
-		ivy-dynamic-exhibit-delay-ms 250
-		ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
-  ;; Use enter to navigate instead opening dired
-  (define-key ivy-minibuffer-map (kbd "C-m") 'ivy-alt-done))
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "C-x C-f") #'helm-find-files))
 
-(use-package counsel
-  :diminish
-  :init
-  (counsel-mode t))
-
-(use-package swiper
-  :config
-  (global-set-key "\C-s" 'swiper))
-
-;; Paredit (keep parenthesis balanced)
-(use-package paredit)
+;; Keep parenthesis balanced
+(use-package paredit
+  :diminish)
 
 ;; Project manager
 (use-package projectile
@@ -98,10 +86,9 @@
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (add-to-list 'projectile-globally-ignored-directories "node_modules"))
 
-(use-package counsel-projectile
-  :after projectile
+(use-package helm-projectile
   :init
-  (counsel-projectile-mode t))
+  (helm-projectile-on))
 
 ;; Show each delimiter (parenthesis, brackets, etc) with different colors
 (use-package rainbow-delimiters
@@ -121,7 +108,7 @@
 
 ;; Show command suggestions
 (use-package which-key
-  :init
+  :config
   (which-key-mode +1))
 
 ;; Insert matching delimiters (parenthesis, brackets, etc)
@@ -173,9 +160,9 @@
 
 ;; Font
 (if (memq window-system '(mac ns x))
-  (when (member "Monaco" (font-family-list))
-    (set-face-attribute 'default nil :font "Monaco")
-    (set-face-attribute 'default nil :height 150))
+  (when (member "Victor Mono" (font-family-list))
+    (set-face-attribute 'default nil :font "Victor Mono")
+    (set-face-attribute 'default nil :height 170))
   (when (member "JetBrains Mono" (font-family-list))
     (set-face-attribute 'default nil :font "JetBrains Mono")
     (set-face-attribute 'default nil :height 130)))
@@ -218,6 +205,8 @@
 ;;;;;;;;;;;;;;;;;;;;; LSP
 
 (use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
   :bind
   ("M-." . lsp-find-definition)
   :hook
@@ -228,6 +217,7 @@
      java-mode
      rust-mode
      rustic-mode) . lsp-deferred))
+  (lsp-mode . lsp-enable-which-key-integration)
   :config
   (setq-default lsp-auto-guess-root t)
   (setq-default lsp-log-io nil)
@@ -246,7 +236,6 @@
   (setq-default lsp-enable-snippet nil)
   (setq-default read-process-output-max (* 1024 1024)) ;; 1MB
   (setq-default lsp-idle-delay 0.5)
-  (lsp-enable-which-key-integration t)
   :commands lsp)
 
 (use-package lsp-ui
@@ -305,6 +294,10 @@ matcher-combinators assertions."
                                             "defflow-new-system!")))
   (advice-add 'cider-ansi-color-string-p :override #'custom--cider-ansi-color-string-p)
   (advice-add 'cider-font-lock-as :override #'custom--cider-font-lock-as))
+
+(use-package helm-cider
+  :hook
+  (cider-mode . helm-cider-mode))
 
 ;;;;;;;;;;;;;;;;;;;;; GOLANG
 
