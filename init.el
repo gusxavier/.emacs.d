@@ -313,6 +313,9 @@ matcher-combinators assertions."
 ;;;;;;;;;;;;;;;;;;;;; RUST
 
 (use-package rustic)
+;;;;;;;;;;;;;;;;;;;;; TYPESCRIPT
+
+(use-package typescript-mode)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
