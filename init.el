@@ -74,6 +74,8 @@
   (global-set-key (kbd "M-x") 'helm-M-x)
   (global-set-key (kbd "C-x C-f") #'helm-find-files))
 
+(use-package helm-ag)
+
 ;; Keep parenthesis balanced
 (use-package paredit
   :diminish)
