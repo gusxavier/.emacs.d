@@ -28,6 +28,11 @@
   "Avoid writing package-selected-packages on init.el."
   nil)
 
+;; Shorten minor modes (to be used with use-package)
+(use-package diminish
+  :init
+  (diminish 'eldoc-mode))
+
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
 
 ;; Use ag in projectile search
@@ -46,10 +51,7 @@
   (setq company-minimum-prefix-length 1)
   (setq company-selection-wrap-around t))
 
-(use-package diminish
-  :init
-  (diminish 'eldoc-mode))
-
+;; Load env variables from PATH inside Emacs
 (use-package exec-path-from-shell
   :init
   (exec-path-from-shell-initialize))
@@ -74,6 +76,7 @@
   (global-set-key (kbd "M-x") 'helm-M-x)
   (global-set-key (kbd "C-x C-f") #'helm-find-files))
 
+;; Use ag (the silver searcher) to search using helm
 (use-package helm-ag)
 
 ;; Keep parenthesis balanced
@@ -88,6 +91,7 @@
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (add-to-list 'projectile-globally-ignored-directories "node_modules"))
 
+;; Helm + Projectile integration <3
 (use-package helm-projectile
   :init
   (helm-projectile-on))
@@ -96,6 +100,9 @@
 (use-package rainbow-delimiters
   :hook
   (prog-mode . rainbow-delimiters-mode))
+
+;; Make HTTP requests inside Emacs
+(use-package restclient)
 
 ;; File tree sidebar
 (use-package treemacs
@@ -150,24 +157,26 @@
 
 ;;;;;;;;;;;;;;;;;;;;; UI
 
-;; Show icons
+;; Better icons
 ;; Run M-x all-the-icons-install-fonts in the first time
 (use-package all-the-icons
   :if (display-graphic-p))
 
-;; Theme
+;; Current theme
 (use-package zenburn-theme
   :init
   (load-theme 'zenburn t))
 
 ;; Font
-(if (memq window-system '(mac ns x))
-  (when (member "Victor Mono" (font-family-list))
-    (set-face-attribute 'default nil :font "Victor Mono")
-    (set-face-attribute 'default nil :height 170))
-  (when (member "JetBrains Mono" (font-family-list))
-    (set-face-attribute 'default nil :font "JetBrains Mono")
-    (set-face-attribute 'default nil :height 130)))
+(set-face-attribute 'default nil :font "Victor Mono" :weight 'medium :height 140)
+
+;; Change comment font to avoid using Victor Mono weird italics
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(font-lock-comment-face ((t (:font "Victor Mono" :height 140 :slant normal :weight semilight)))))
 
 ;; Set font encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -301,9 +310,11 @@ matcher-combinators assertions."
   :hook
   (cider-mode . helm-cider-mode))
 
-;;;;;;;;;;;;;;;;;;;;; GOLANG
+;;;;;;;;;;;;;;;;;;;;; GO
 
-(use-package go-mode)
+(use-package go-mode
+  :hook
+  (go-mode . custom--go-mode-setup))
 
 ;;;;;;;;;;;;;;;;;;;;; JAVA
 
@@ -313,23 +324,18 @@ matcher-combinators assertions."
 ;;;;;;;;;;;;;;;;;;;;; RUST
 
 (use-package rustic)
+
 ;;;;;;;;;;;;;;;;;;;;; TYPESCRIPT
 
 (use-package typescript-mode)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;;;;;;;;;;;;;;;;;;;;; GRAPHQL
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(use-package graphql-mode)
+
+;;;;;;;;;;;;;;;;;;;;; YAML
+
+(use-package yaml-mode)
 
 (provide 'init)
 
