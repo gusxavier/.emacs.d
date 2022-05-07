@@ -104,6 +104,13 @@
 ;; Make HTTP requests inside Emacs
 (use-package restclient)
 
+;; Dealing with pairs (parenthesis, brackets, etc)
+(use-package smartparens
+  :init
+  (require 'smartparens-config)
+  (smartparens-global-mode +1)
+  (electric-pair-mode +1))
+
 ;; File tree sidebar
 (use-package treemacs
   :bind ("<f8>" . treemacs))
@@ -119,9 +126,6 @@
 (use-package which-key
   :config
   (which-key-mode +1))
-
-;; Insert matching delimiters (parenthesis, brackets, etc)
-(electric-pair-mode 1)
 
 ;; Highlight parens
 (show-paren-mode t)
