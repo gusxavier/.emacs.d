@@ -237,6 +237,7 @@
      clojure-mode
      clojurec-mode
      clojurescript-mode
+     elixir-mode
      java-mode
      rust-mode
      rustic-mode) . lsp-deferred))
@@ -250,6 +251,7 @@
   (setq-default lsp-signature-auto-activate nil)
   (setq-default lsp-signature-render-documentation nil)
   (setq-default lsp-eldoc-hook nil)
+  (setq-default lsp-eldoc-enable-hover nil)
   (setq-default lsp-modeline-code-actions-enable nil)
   (setq-default lsp-modeline-diagnostics-enable nil)
   (setq-default lsp-headerline-breadcrumb-enable nil)
@@ -259,17 +261,19 @@
   (setq-default lsp-enable-snippet nil)
   (setq-default read-process-output-max (* 1024 1024)) ;; 1MB
   (setq-default lsp-idle-delay 0.5)
+  (setq-default lsp-lens-enable nil)
+  :custom
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
   :commands lsp)
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :config
   (setq-default lsp-ui-doc-enable nil)
+  (setq-default lsp-ui-doc-show-with-cursor nil)
   (setq-default lsp-ui-sideline-enable nil)
   (setq-default lsp-ui-doc-header nil)
-  (setq-default lsp-ui-doc-include-signuature nil)
-  (setq-default lsp-ui-doc-border (face-foreground 'default))
-  (setq-default lsp-ui-sideline-delay 0.05))
+  (setq-default lsp-ui-doc-include-signuature nil))
 
 ;;;;;;;;;;;;;;;;;;;;; CLOJURE
 
@@ -324,9 +328,7 @@ matcher-combinators assertions."
 
 ;;;;;;;;;;;;;;;;;;;;; GO
 
-(use-package go-mode
-  :hook
-  (go-mode . custom--go-mode-setup))
+(use-package go-mode)
 
 ;;;;;;;;;;;;;;;;;;;;; JAVA
 
@@ -335,11 +337,17 @@ matcher-combinators assertions."
 
 ;;;;;;;;;;;;;;;;;;;;; RUST
 
-(use-package rustic)
+(use-package rustic
+  :config
+  (setq rustic-format-on-save t))
 
 ;;;;;;;;;;;;;;;;;;;;; TYPESCRIPT
 
 (use-package typescript-mode)
+
+;;;;;;;;;;;;;;;;;;;;; ELIXIR
+
+(use-package elixir-mode)
 
 ;;;;;;;;;;;;;;;;;;;;; GRAPHQL
 
