@@ -166,21 +166,30 @@
 (use-package all-the-icons
   :if (display-graphic-p))
 
-;; Current theme
-(use-package zenburn-theme
-  :init
-  (load-theme 'zenburn t))
-
 ;; Font
-(set-face-attribute 'default nil :font "Victor Mono" :weight 'medium :height 140)
+(set-face-attribute 'default nil
+		    :font "MonoLisa"
+		    :weight 'regular
+		    :height 130)
 
-;; Change comment font to avoid using Victor Mono weird italics
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(font-lock-comment-face ((t (:font "Victor Mono" :height 140 :slant normal :weight semilight)))))
+;; Current theme
+(use-package doom-themes
+  :config
+  (load-theme 'doom-one t)
+
+  ;; Enable doom treemacs theme
+  (setq-default doom-themes-treemacs-theme "doom-colors")
+  (doom-themes-treemacs-config)
+
+  ;; Improve org-mode
+  (doom-themes-org-config))
+
+;; Better modeline
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-lsp t))
 
 ;; Set font encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -197,7 +206,6 @@
 (tool-bar-mode -1)
 
 ;; Highlight current line
-;; (global-hl-line-mode t)
 (add-hook 'prog-mode-hook #'hl-line-mode)
 (add-hook 'text-mode-hook #'hl-line-mode)
 
