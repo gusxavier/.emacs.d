@@ -20,6 +20,8 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
+(setq package-native-compile t)
+
 (require 'use-package)
 (setq use-package-always-ensure t)
 
