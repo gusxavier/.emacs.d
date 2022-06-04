@@ -172,7 +172,7 @@
 (set-face-attribute 'default nil
 		    :font "MonoLisa"
 		    :weight 'regular
-		    :height 150)
+		    :height 130)
 
 ;; Current theme
 (use-package doom-themes
