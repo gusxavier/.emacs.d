@@ -339,9 +339,7 @@ matcher-combinators assertions."
 
 ;;;;;;;;;;;;;;;;;;;;; RUST
 
-(use-package rustic
-  :config
-  (setq rustic-format-on-save t))
+(use-package rustic)
 
 ;;;;;;;;;;;;;;;;;;;;; TYPESCRIPT
 
