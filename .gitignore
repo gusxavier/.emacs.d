@@ -21,3 +21,4 @@ workspace/
 places
 session.*
 eln-cache/
+flycheck_init.el
