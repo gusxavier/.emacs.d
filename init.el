@@ -76,7 +76,12 @@
   (helm-mode t)
   :config
   (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-x C-f") #'helm-find-files))
+  (global-set-key (kbd "C-x C-f") #'helm-find-files)
+
+  ;; Set TAB key to use helm TAB completion
+  (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
+  (define-key helm-map (kbd "<tab>") #'helm-execute-persistent-action)
+  (define-key helm-map (kbd "C-z") #'helm-select-action))
 
 ;; Use ag (the silver searcher) to search using helm
 (use-package helm-ag)
