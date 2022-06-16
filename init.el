@@ -191,26 +191,24 @@
 (set-face-attribute 'default nil
 		    :font "MonoLisa"
 		    :weight 'regular
-		    :height 130)
+		    :height 170)
 
 ;; Current theme
-(use-package doom-themes
+(use-package modus-themes
   :config
-  (load-theme 'doom-one t)
+  (modus-themes-load-themes)
+  (load-theme 'modus-vivendi t))
 
-  ;; Enable doom treemacs theme
-  (setq-default doom-themes-treemacs-theme "doom-colors")
-  (doom-themes-treemacs-config)
+;; (use-package doom-themes
+;;   :config
+;;   (load-theme 'doom-one t)
 
-  ;; Improve org-mode
-  (doom-themes-org-config))
+;;   ;; Enable doom treemacs theme
+;;   (setq doom-themes-treemacs-theme "doom-colors")
+;;   (doom-themes-treemacs-config)
 
-;; Better modeline
-(use-package doom-modeline
-  :init
-  (doom-modeline-mode 1)
-  :config
-  (setq doom-modeline-lsp t))
+;;   ;; Improve org-mode
+;;   (doom-themes-org-config))
 
 ;; Set font encoding to UTF-8
 (set-language-environment "UTF-8")
