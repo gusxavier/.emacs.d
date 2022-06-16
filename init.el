@@ -4,6 +4,16 @@
 
 ;;; Code:
 
+;;;;;;;;;;;;;;;;;;;;; NATIVE COMP
+
+(when (and (fboundp 'native-comp-available-p)
+           (native-comp-available-p))
+  (progn
+    (setq native-comp-async-report-warnings-errors nil)
+    (setq comp-deferred-compilation t)
+    (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
+    (setq package-native-compile t)))
+
 ;;;;;;;;;;;;;;;;;;;;; PACKAGE CONFIGURATION
 
 (require 'package)
@@ -19,8 +29,6 @@
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
-
-(setq package-native-compile t)
 
 (require 'use-package)
 (setq use-package-always-ensure t)
@@ -77,7 +85,6 @@
   :config
   (global-set-key (kbd "M-x") 'helm-M-x)
   (global-set-key (kbd "C-x C-f") #'helm-find-files)
-
   ;; Set TAB key to use helm TAB completion
   (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
   (define-key helm-map (kbd "<tab>") #'helm-execute-persistent-action)
