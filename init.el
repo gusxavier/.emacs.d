@@ -374,6 +374,9 @@ matcher-combinators assertions."
 
 (use-package yaml-mode)
 
+;; Start emacs server to enable emacsclient
+(server-start)
+
 (provide 'init)
 
 ;;; init.el ends here
