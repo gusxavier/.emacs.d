@@ -120,6 +120,7 @@
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
+  :diminish
   :init
   (require 'smartparens-config)
   (smartparens-global-mode +1)
@@ -130,6 +131,7 @@
   :bind ("<f8>" . treemacs))
 
 (use-package treemacs-all-the-icons
+  :after treemacs
   :config
   (treemacs-load-all-the-icons-with-workaround-font t))
 
@@ -138,6 +140,7 @@
 
 ;; Show command suggestions
 (use-package which-key
+  :diminish
   :config
   (which-key-mode +1))
 
@@ -159,10 +162,10 @@
 (setq make-backup-files nil)
 
 ;; Set command as meta key in mac
-(setq-default mac-option-key-is-meta nil
-              mac-command-key-is-meta t
-              mac-command-modifier 'meta
-              mac-option-modifier 'none)
+(setq mac-option-key-is-meta nil
+      mac-command-key-is-meta t
+      mac-command-modifier 'meta
+      mac-option-modifier 'none)
 
 ;; Ask before exit
 (setq confirm-kill-emacs 'y-or-n-p)
@@ -172,6 +175,10 @@
 
 ;; Remove blinking cursor
 (blink-cursor-mode -1)
+
+;; Performance tunning
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024))
 
 ;;;;;;;;;;;;;;;;;;;;; UI
 
@@ -245,7 +252,7 @@
   :init
   (setq lsp-keymap-prefix "C-c l")
   :bind
-  ("M-." . lsp-find-definition)
+  ("M-." . xref-find-definitions)
   :hook
   (((go-mode
      clojure-mode
@@ -257,25 +264,25 @@
      rustic-mode) . lsp-deferred))
   (lsp-mode . lsp-enable-which-key-integration)
   :config
-  (setq-default lsp-auto-guess-root t)
-  (setq-default lsp-log-io nil)
-  (setq-default lsp-restart 'auto-restart)
-  (setq-default lsp-enable-symbol-highlighting nil)
-  (setq-default lsp-enable-on-type-formatting nil)
-  (setq-default lsp-signature-auto-activate nil)
-  (setq-default lsp-signature-render-documentation nil)
-  (setq-default lsp-eldoc-hook nil)
-  (setq-default lsp-eldoc-enable-hover nil)
-  (setq-default lsp-modeline-code-actions-enable nil)
-  (setq-default lsp-modeline-diagnostics-enable nil)
-  (setq-default lsp-headerline-breadcrumb-enable nil)
-  (setq-default lsp-semantic-tokens-enable nil)
-  (setq-default lsp-enable-folding nil)
-  (setq-default lsp-enable-imenu nil)
-  (setq-default lsp-enable-snippet nil)
-  (setq-default read-process-output-max (* 1024 1024)) ;; 1MB
-  (setq-default lsp-idle-delay 0.5)
-  (setq-default lsp-lens-enable nil)
+  (setq lsp-auto-guess-root t)
+  (setq lsp-log-io nil)
+  (setq lsp-restart 'auto-restart)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-signature-render-documentation nil)
+  (setq lsp-eldoc-hook nil)
+  (setq lsp-eldoc-enable-hover nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-semantic-tokens-enable nil)
+  (setq lsp-enable-folding nil)
+  (setq lsp-enable-imenu nil)
+  (setq lsp-enable-snippet nil)
+  (setq lsp-idle-delay 0.5)
+  (setq lsp-lens-enable nil)
+  (setq lsp-use-plists t)
   :custom
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   :commands lsp)
@@ -283,11 +290,11 @@
 (use-package lsp-ui
   :commands lsp-ui-mode
   :config
-  (setq-default lsp-ui-doc-enable nil)
-  (setq-default lsp-ui-doc-show-with-cursor nil)
-  (setq-default lsp-ui-sideline-enable nil)
-  (setq-default lsp-ui-doc-header nil)
-  (setq-default lsp-ui-doc-include-signuature nil))
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-doc-show-with-cursor nil)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-ui-doc-header nil)
+  (setq lsp-ui-doc-include-signuature nil))
 
 ;;;;;;;;;;;;;;;;;;;;; CLOJURE
 
@@ -325,7 +332,7 @@ matcher-combinators assertions."
   :bind
   ("C-c M-b" . cider-repl-clear-buffer)
   :config
-  (setq-default cider-prompt-for-symbol nil)
+  (setq cider-prompt-for-symbol nil)
   (unbind-key "M-." cider-mode-map)
   (unbind-key "M-," cider-mode-map)
   (setq cider-test-defining-forms
