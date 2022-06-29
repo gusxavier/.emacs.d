@@ -93,9 +93,14 @@
 ;; Use ag (the silver searcher) to search using helm
 (use-package helm-ag)
 
+;; Git + Emacs = <3
+(use-package magit)
+
 ;; Keep parenthesis balanced
 (use-package paredit
-  :diminish)
+  :diminish
+  :hook
+  (prog-mode . paredit-mode))
 
 ;; Project manager
 (use-package projectile
@@ -119,14 +124,14 @@
 (use-package restclient)
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
-(use-package smartparens
-  :diminish
-  :init
-  (require 'smartparens-config)
-  (smartparens-global-mode +1)
-  (electric-pair-mode +1))
+;; (use-package smartparens
+;;   :diminish
+;;   :init
+;;   (require 'smartparens-config)
+;;   (smartparens-global-mode +1)
+;;   (electric-pair-mode +1))
 
-;; File tree sidebar
+;; file tree sidebar
 (use-package treemacs
   :bind ("<f8>" . treemacs))
 
@@ -188,27 +193,29 @@
   :if (display-graphic-p))
 
 ;; Font
-(set-face-attribute 'default nil
-		    :font "MonoLisa"
-		    :weight 'regular
-		    :height 170)
+(set-frame-font "MonoLisa Custom Light 15" nil t)
 
 ;; Current theme
-(use-package modus-themes
-  :config
-  (modus-themes-load-themes)
-  (load-theme 'modus-vivendi t))
-
 ;; (use-package doom-themes
 ;;   :config
+;;   (setq doom-themes-enable-bold nil
+;; 	doom-themes-enable-italic nil)
+
 ;;   (load-theme 'doom-one t)
+;;   ;; (load-theme 'doom-one-light t)
 
-;;   ;; Enable doom treemacs theme
-;;   (setq doom-themes-treemacs-theme "doom-colors")
+;;   (setq doom-themes-treemacs-theme "doom-atom")
 ;;   (doom-themes-treemacs-config)
-
-;;   ;; Improve org-mode
 ;;   (doom-themes-org-config))
+
+;; Other themes that I use frequently
+
+(use-package modus-themes
+  :bind ("<f5>" . modus-themes-toggle)
+  :init
+  (modus-themes-load-themes)
+  :config
+  (modus-themes-load-vivendi))
 
 ;; Set font encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -244,13 +251,16 @@
 ;; Disable startup screen
 (setq inhibit-startup-message t)
 
+;; Set window as maximized
+(toggle-frame-maximized)
+
 ;;;;;;;;;;;;;;;;;;;;; LSP
 
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c l")
   :bind
-  ("M-." . xref-find-definitions)
+  ("M-." . #'xref-find-definitions)
   :hook
   (((go-mode
      clojure-mode
@@ -281,18 +291,13 @@
   (setq lsp-idle-delay 0.5)
   (setq lsp-lens-enable nil)
   (setq lsp-use-plists t)
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-imenu-enable nil)
+  (setq lsp-ui-peek-enable nil)
+  (setq lsp-ui-sideline-enable nil)
   :custom
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   :commands lsp)
-
-(use-package lsp-ui
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-doc-show-with-cursor nil)
-  (setq lsp-ui-sideline-enable nil)
-  (setq lsp-ui-doc-header nil)
-  (setq lsp-ui-doc-include-signuature nil))
 
 ;;;;;;;;;;;;;;;;;;;;; CLOJURE
 
@@ -302,43 +307,46 @@
   :config
   (setq clojure-align-forms-automatically t))
 
-;; Better visualization of test results
-(defun custom--cider-ansi-color-string-p (value)
-  "Check for extra ANSI chars on VALUE."
-  (or (string-match "^\\[" value)
-      (string-match "\u001B\\[" value)))
-
-;; Improve matcher-combinators assertion results
-(defun custom--cider-font-lock-as (mode string)
-  "Use MODE to font-lock the STRING.
-Copied from cider-util.el, it does the same but doesn't remove
-string properties and doesn't check for valid clojure-code, fixing
-matcher-combinators assertions."
-  (let ((string (if (cider-ansi-color-string-p string)
-                    (ansi-color-apply string)
-                  string)))
-    (if (or (null cider-font-lock-max-length)
-            (< (length string) cider-font-lock-max-length))
-        (with-current-buffer (cider--make-buffer-for-mode mode)
-          (erase-buffer)
-          (insert string)
-          (font-lock-fontify-region (point-min) (point-max))
-          (buffer-string))
-      string)))
-
 (use-package cider
+  :hook
+  (cider-repl-mode . paredit-mode)
   :bind
   ("C-c M-b" . cider-repl-clear-buffer)
   :config
-  (setq cider-prompt-for-symbol nil)
   (unbind-key "M-." cider-mode-map)
   (unbind-key "M-," cider-mode-map)
+
+  (setq cider-prompt-for-symbol nil)
+  
   (setq cider-test-defining-forms
-        (append cider-test-defining-forms '("defflow"
-                                            "defflow-i18n"
-                                            "defflow-loopback-false"
-                                            "defflow-new-system!")))
+	(delete-dups (append cider-test-defining-forms '("defflow"
+							 "defflow-i18n"
+							 "defflow-loopback-false"
+							 "defflow-new-system!"))))
+
+  (setq cider-test-show-report-on-success t)
+
+  ;; Better visualization of test results
+  (defun custom--cider-ansi-color-string-p (value)
+    "Check for extra ANSI chars on VALUE."
+    (or (string-match "^\\[" value)
+	(string-match "\u001B\\[" value)))
   (advice-add 'cider-ansi-color-string-p :override #'custom--cider-ansi-color-string-p)
+
+  ;; Improve matcher-combinators assertion results
+  (defun custom--cider-font-lock-as (mode string)
+    "Use MODE to font-lock the STRING (fixing matcher-combinators assertions.)."
+    (let ((string (if (cider-ansi-color-string-p string)
+                      (ansi-color-apply string)
+                    string)))
+      (if (or (null cider-font-lock-max-length)
+              (< (length string) cider-font-lock-max-length))
+          (with-current-buffer (cider--make-buffer-for-mode mode)
+            (erase-buffer)
+            (insert string)
+            (font-lock-fontify-region (point-min) (point-max))
+            (buffer-string))
+	string)))
   (advice-add 'cider-font-lock-as :override #'custom--cider-font-lock-as))
 
 (use-package helm-cider
@@ -380,3 +388,15 @@ matcher-combinators assertions."
 (provide 'init)
 
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values '((cider-clojure-cli-aliases . ":dev:test:nrepl"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
