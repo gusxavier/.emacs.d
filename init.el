@@ -18,16 +18,16 @@
 
 (require 'package)
 
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/")
-             '("gnu" . "https://elpa.gnu.org/packages/"))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			 ("gnu" . "https://elpa.gnu.org/packages/")))
 
 ;; Activate packages
 (package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
 
 ;; Bootstrap use-package
 (unless (package-installed-p 'use-package)
-  (package-refresh-contents)
   (package-install 'use-package))
 
 (require 'use-package)
@@ -42,6 +42,82 @@
 (use-package diminish
   :init
   (diminish 'eldoc-mode))
+
+;;;;;;;;;;;;;;;;;;;;; UI
+
+;; Better icons
+;; Run M-x all-the-icons-install-fonts in the first time
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+;; Font
+(set-face-attribute 'default nil
+		    :font "MonoLisa Custom Light"
+		    :height 140)
+
+;; Current theme
+
+(use-package doom-themes
+  :config
+  (load-theme 'doom-palenight t)
+
+  (setq doom-themes-treemacs-theme "doom-colors")
+  (doom-themes-treemacs-config)
+  (doom-themes-org-config))
+
+;; Other themes that I use frequently
+
+;; (use-package modus-themes
+;;   :bind ("<f5>" . modus-themes-toggle)
+;;   :init
+;;   (modus-themes-load-themes)
+;;   :config
+;;   (modus-themes-load-vivendi))
+
+;; Modeline
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode 1))
+
+;; Set font encoding to UTF-8
+(set-language-environment "UTF-8")
+(set-default-coding-systems 'utf-8-unix)
+
+;; Avoid slowness with some fonts
+(setq inhibit-compacting-font-caches t)
+
+;; Remove scroll bar
+(scroll-bar-mode -1)
+
+;; Remove top bar
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+
+;; Remove tooltips
+(tooltip-mode -1)
+
+;; Highlight current line
+(add-hook 'prog-mode-hook #'hl-line-mode)
+(add-hook 'text-mode-hook #'hl-line-mode)
+
+;; Show line numbers
+(global-display-line-numbers-mode t)
+
+;; Show cursor position
+(line-number-mode t)
+(column-number-mode t)
+
+;; Smooth scrolling
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1
+      auto-window-vscroll nil)
+
+;; Disable startup screen
+(setq inhibit-startup-message t)
+
+;; Set window as maximized
+(toggle-frame-maximized)
 
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
 
@@ -93,6 +169,38 @@
 ;; Use ag (the silver searcher) to search using helm
 (use-package helm-ag)
 
+;; Completion framework
+;; (use-package selectrum
+;;   :init
+;;   (selectrum-mode +1))
+
+;; (use-package orderless
+;;   :init
+;;   (setq completion-styles '(orderless basic)
+;; 	completion-category-defaults nil
+;; 	completion-category-overrides '((file (styles basic partial-completion)))
+;; 	orderless-component-separator "[ &]")
+
+;;   ;; Highlight text matches on company
+;;   (defun just-one-face (fn &rest args)
+;;     (let ((orderless-match-faces [completions-common-part]))
+;;       (apply fn args)))
+;;   (advice-add 'company-capf--candidates :around #'just-one-face))
+
+;; (use-package savehist
+;;   :init
+;;   (savehist-mode))
+
+;; (use-package marginalia
+;;   :after selectrum
+;;   :custom
+;;   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+;;   :init
+;;   (marginalia-mode))
+
+;; (use-package consult
+;;   :after selectrum)
+
 ;; Git + Emacs = <3
 (use-package magit)
 
@@ -105,12 +213,13 @@
 ;; Project manager
 (use-package projectile
   :init
+  (setq projectile-completion-system 'default)
   (projectile-mode t)
   :config
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (add-to-list 'projectile-globally-ignored-directories "node_modules"))
 
-;; Helm + Projectile integration <3
+;; Helm + Projectile integration <3w
 (use-package helm-projectile
   :init
   (helm-projectile-on))
@@ -134,11 +243,6 @@
 ;; file tree sidebar
 (use-package treemacs
   :bind ("<f8>" . treemacs))
-
-(use-package treemacs-all-the-icons
-  :after treemacs
-  :config
-  (treemacs-load-all-the-icons-with-workaround-font t))
 
 ;; Terminal inside emacs
 (use-package vterm)
@@ -167,15 +271,17 @@
 (setq make-backup-files nil)
 
 ;; Set command as meta key in mac
-(setq mac-option-key-is-meta nil
-      mac-command-key-is-meta t
-      mac-command-modifier 'meta
-      mac-option-modifier 'none)
+(when (eq system-type 'darwin)
+  (setq mac-option-key-is-meta nil
+	mac-command-key-is-meta t
+	mac-command-modifier 'meta
+	mac-option-modifier 'none))
 
 ;; Ask before exit
 (setq confirm-kill-emacs 'y-or-n-p)
 
 ;; At last some piece and quiet
+(setq visible-bell t)
 (setq ring-bell-function 'ignore)
 
 ;; Remove blinking cursor
@@ -184,75 +290,6 @@
 ;; Performance tunning
 (setq gc-cons-threshold 100000000)
 (setq read-process-output-max (* 1024 1024))
-
-;;;;;;;;;;;;;;;;;;;;; UI
-
-;; Better icons
-;; Run M-x all-the-icons-install-fonts in the first time
-(use-package all-the-icons
-  :if (display-graphic-p))
-
-;; Font
-(set-frame-font "MonoLisa Custom Light 15" nil t)
-
-;; Current theme
-;; (use-package doom-themes
-;;   :config
-;;   (setq doom-themes-enable-bold nil
-;; 	doom-themes-enable-italic nil)
-
-;;   (load-theme 'doom-one t)
-;;   ;; (load-theme 'doom-one-light t)
-
-;;   (setq doom-themes-treemacs-theme "doom-atom")
-;;   (doom-themes-treemacs-config)
-;;   (doom-themes-org-config))
-
-;; Other themes that I use frequently
-
-(use-package modus-themes
-  :bind ("<f5>" . modus-themes-toggle)
-  :init
-  (modus-themes-load-themes)
-  :config
-  (modus-themes-load-vivendi))
-
-;; Set font encoding to UTF-8
-(set-language-environment "UTF-8")
-(set-default-coding-systems 'utf-8-unix)
-
-;; Avoid slowness with some fonts
-(setq inhibit-compacting-font-caches t)
-
-;; Remove scroll bar
-(scroll-bar-mode -1)
-
-;; Remove top bar
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-
-;; Highlight current line
-(add-hook 'prog-mode-hook #'hl-line-mode)
-(add-hook 'text-mode-hook #'hl-line-mode)
-
-;; Show line numbers
-(global-display-line-numbers-mode t)
-
-;; Show cursor position
-(line-number-mode t)
-(column-number-mode t)
-
-;; Smooth scrolling
-(setq scroll-margin 0
-      scroll-conservatively 100000
-      scroll-preserve-screen-position 1
-      auto-window-vscroll nil)
-
-;; Disable startup screen
-(setq inhibit-startup-message t)
-
-;; Set window as maximized
-(toggle-frame-maximized)
 
 ;;;;;;;;;;;;;;;;;;;;; LSP
 
@@ -383,7 +420,9 @@
 (use-package yaml-mode)
 
 ;; Start emacs server to enable emacsclient
-(server-start)
+(if (and (fboundp 'server-running-p)
+         (not (server-running-p)))
+   (server-start))
 
 (provide 'init)
 
