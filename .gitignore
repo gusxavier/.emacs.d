@@ -23,3 +23,4 @@ session.*
 eln-cache/
 flycheck_init.el
 projects
+history
