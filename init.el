@@ -51,16 +51,20 @@
   :if (display-graphic-p))
 
 ;; Font
-(set-face-attribute 'default nil
-		    :font "MonoLisa Custom Light"
-		    :height 140)
+(if (eq system-type 'darwin)
+    (set-face-attribute 'default nil
+			:font "MonoLisa Light"
+			:height 160)
+  (set-face-attribute 'default nil
+		      :font "MonoLisa Custom Light"
+		      :height 140))
+
 
 ;; Current theme
 
 (use-package doom-themes
   :config
-  (load-theme 'doom-palenight t)
-
+  (load-theme 'doom-one t)
   (setq doom-themes-treemacs-theme "doom-colors")
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
