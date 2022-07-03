@@ -358,7 +358,8 @@
      rustic-mode) . eglot-ensure))
   :config
   (setq eglot-extend-to-xref t
-	eglot-ignored-server-capabilites '(:documentHighlightProvider))
+	eglot-ignored-server-capabilites '(:documentHighlightProvider)
+	eglot-connect-timeout 120)
   (add-hook 'eglot-managed-mode-hook 'my/improve-eldoc-flymake))
 
 ;;;;;;;;;;;;;;;;;;;;; CLOJURE
