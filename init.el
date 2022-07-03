@@ -53,16 +53,16 @@
 ;; Font
 (if (eq system-type 'darwin)
     (set-face-attribute 'default nil
-			:font "MonoLisa Light"
+			:font "MonoLisa Custom Light"
 			:height 160)
   (set-face-attribute 'default nil
-		      :font "MonoLisa Light"
-		      :height 140))
+			:font "MonoLisa Light"
+			:height 140))
 
 ;; Theme
 (use-package doom-themes
   :config
-  (load-theme 'doom-dracula t)
+  ;; (load-theme 'doom-dracula t)
   (setq doom-themes-treemacs-theme "doom-atom"
 	doom-themes-enable-bold t
 	doom-themes-enable-italic t)
@@ -239,14 +239,19 @@
 ;; Emacs core config
 (use-package emacs
   :bind
-  (("M-n" . #'flymake-goto-next-error)
+  (;; Flymake
+   ("M-n" . #'flymake-goto-next-error)
    ("M-p" . #'flymake-goto-prev-error)
+   ;; Modus themes
    ("<f5>" . #'modus-themes-toggle))
   :hook
-  ((prog-mode . flymake-mode)
+  (;; Enable flymake by default
+   (prog-mode . flymake-mode)
    (text-mode . flymake-mode)
+   ;; Enable smartparens when editting elisp
    (elisp-mode . smartparens-strict-mode))
   :init
+  ;; Modus themes improvements
   (setq modus-themes-mode-line '(accented borderless)
 	modus-themes-region '(bg-only)
 	modus-themes-bold-constructs t
@@ -257,7 +262,9 @@
 	modus-themes-subtle-line-numbers t
 	modus-themes-lang-checkers '(background faint))
   :config
-  ;; (load-theme 'modus-operandi t)
+  (load-theme 'modus-vivendi t)
+
+  ;; Fix eldoc overriding flymake errors
   (setq eldoc-echo-area-use-multiline-p nil)
   (add-hook 'prog-mode-hook 'my/improve-eldoc-flymake))
 
