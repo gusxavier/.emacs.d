@@ -415,11 +415,6 @@
 
 (use-package go-mode)
 
-;;;;;;;;;;;;;;;;;;;;; JAVA
-
-;; (use-package lsp-java
-;;   :after lsp)
-
 ;;;;;;;;;;;;;;;;;;;;; RUST
 
 (use-package rustic)
