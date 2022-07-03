@@ -10,7 +10,7 @@
            (native-comp-available-p))
   (progn
     (setq native-comp-async-report-warnings-errors nil)
-    (setq comp-deferred-compilation t)
+    (setq native-comp-deferred-compilation t)
     (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
     (setq package-native-compile t)))
 
@@ -35,7 +35,7 @@
 
 ;; Avoid writing package-selected-packages on init.el
 (defun package--save-selected-packages (&rest _opt)
-  "Avoid writing package-selected-packages on init.el."
+  "Avoid writing 'package-selected-packages' on init.el."
   nil)
 
 ;; Shorten minor modes (to be used with use-package)
@@ -56,32 +56,23 @@
 			:font "MonoLisa Light"
 			:height 160)
   (set-face-attribute 'default nil
-		      :font "MonoLisa Custom Light"
+		      :font "MonoLisa Light"
 		      :height 140))
 
-
-;; Current theme
-
+;; Theme
 (use-package doom-themes
   :config
-  (load-theme 'doom-one t)
-  (setq doom-themes-treemacs-theme "doom-colors")
+  (load-theme 'doom-dracula t)
+  (setq doom-themes-treemacs-theme "doom-atom"
+	doom-themes-enable-bold t
+	doom-themes-enable-italic t)
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
 
-;; Other themes that I use frequently
-
-;; (use-package modus-themes
-;;   :bind ("<f5>" . modus-themes-toggle)
-;;   :init
-;;   (modus-themes-load-themes)
-;;   :config
-;;   (modus-themes-load-vivendi))
-
-;; Modeline
-(use-package doom-modeline
+;; Improved modeline
+(use-package mood-line
   :init
-  (doom-modeline-mode 1))
+  (mood-line-mode 1))
 
 ;; Set font encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -125,21 +116,48 @@
 
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
 
-;; Use ag in projectile search
-(use-package ag)
-
-;; Auto complete
-(use-package company
-  :diminish
-  :bind (:map company-active-map
-	      ("C-n" . company-select-next)
-	      ("C-p" . company-select-previous))
+(use-package corfu
+  :after orderless
   :init
-  (global-company-mode t)
+  (global-corfu-mode)
   :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 1)
-  (setq company-selection-wrap-around t))
+  (setq corfu-auto t)
+  (setq corfu-cycle t))
+
+;; Improve completing-read
+(use-package consult
+  :after vertico
+  :bind
+  (("C-s" . consult-line)
+   ("C-x b" . consult-buffer)
+   ("C-c C-j" . consult-imenu)
+   ("C-c p s s" . consult-ripgrep))
+  :hook
+  (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref))
+
+(use-package embark
+  :bind
+  (("C-." . embark-act)
+   ("M-." . embark-dwim)
+   ("C-h B" . embark-bindings))
+  :init
+  (setq prefix-help-command #'embark-prefix-help-command)
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+(use-package embark-consult
+  :after (embark consult)
+  :demand t
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 ;; Load env variables from PATH inside Emacs
 (use-package exec-path-from-shell
@@ -151,82 +169,23 @@
   :bind
   ("C-=" . er/expand-region))
 
-;; Syntax checker
-(use-package flycheck
-  :diminish
-  :init
-  (global-flycheck-mode))
-
-;; Minibuffer completion
-(use-package helm
-  :diminish
-  :init
-  (helm-mode t)
-  :config
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-x C-f") #'helm-find-files)
-  ;; Set TAB key to use helm TAB completion
-  (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
-  (define-key helm-map (kbd "<tab>") #'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-z") #'helm-select-action))
-
-;; Use ag (the silver searcher) to search using helm
-(use-package helm-ag)
-
-;; Completion framework
-;; (use-package selectrum
-;;   :init
-;;   (selectrum-mode +1))
-
-;; (use-package orderless
-;;   :init
-;;   (setq completion-styles '(orderless basic)
-;; 	completion-category-defaults nil
-;; 	completion-category-overrides '((file (styles basic partial-completion)))
-;; 	orderless-component-separator "[ &]")
-
-;;   ;; Highlight text matches on company
-;;   (defun just-one-face (fn &rest args)
-;;     (let ((orderless-match-faces [completions-common-part]))
-;;       (apply fn args)))
-;;   (advice-add 'company-capf--candidates :around #'just-one-face))
-
-;; (use-package savehist
-;;   :init
-;;   (savehist-mode))
-
-;; (use-package marginalia
-;;   :after selectrum
-;;   :custom
-;;   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
-;;   :init
-;;   (marginalia-mode))
-
-;; (use-package consult
-;;   :after selectrum)
-
 ;; Git + Emacs = <3
 (use-package magit)
 
-;; Keep parenthesis balanced
-(use-package paredit
-  :diminish
-  :hook
-  (prog-mode . paredit-mode))
-
-;; Project manager
-(use-package projectile
+;; Annotations in the completion framework
+(use-package marginalia
+  :after vertico
+  :bind (("M-A" . marginalia-cycle)
+         :map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
   :init
-  (setq projectile-completion-system 'default)
-  (projectile-mode t)
-  :config
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (add-to-list 'projectile-globally-ignored-directories "node_modules"))
+  (marginalia-mode))
 
-;; Helm + Projectile integration <3w
-(use-package helm-projectile
-  :init
-  (helm-projectile-on))
+;; Better completion style
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
 
 ;; Show each delimiter (parenthesis, brackets, etc) with different colors
 (use-package rainbow-delimiters
@@ -236,17 +195,29 @@
 ;; Make HTTP requests inside Emacs
 (use-package restclient)
 
-;; Dealing with pairs (parenthesis, brackets, etc)
-;; (use-package smartparens
-;;   :diminish
-;;   :init
-;;   (require 'smartparens-config)
-;;   (smartparens-global-mode +1)
-;;   (electric-pair-mode +1))
+;; Persist history over Emacs restarts
+(use-package savehist
+  :init
+  (savehist-mode))
 
-;; file tree sidebar
+;; Dealing with pairs (parenthesis, brackets, etc)
+(use-package smartparens
+  :diminish
+  :init
+  (require 'smartparens-config)
+  (smartparens-global-mode +1)
+  (sp-use-smartparens-bindings))
+
+;; File tree sidebar
 (use-package treemacs
-  :bind ("<f8>" . treemacs))
+  :bind
+  ("<f8>" . treemacs)
+  :config)
+
+;; Completion framework
+(use-package vertico
+  :init
+  (vertico-mode))
 
 ;; Terminal inside emacs
 (use-package vterm)
@@ -256,6 +227,42 @@
   :diminish
   :config
   (which-key-mode +1))
+
+;; Show flymake errors first in eldoc
+(defun my/improve-eldoc-flymake ()
+  "Improve eldoc and flymake integration."
+  (setq eldoc-documentation-functions
+        (cons #'flymake-eldoc-function
+              (remove #'flymake-eldoc-function eldoc-documentation-functions)))
+  (setq eldoc-documentation-strategy #'eldoc-documentation-compose))
+
+;; Emacs core config
+(use-package emacs
+  :bind
+  (("M-n" . #'flymake-goto-next-error)
+   ("M-p" . #'flymake-goto-prev-error)
+   ("<f5>" . #'modus-themes-toggle))
+  :hook
+  ((prog-mode . flymake-mode)
+   (text-mode . flymake-mode)
+   (elisp-mode . smartparens-strict-mode))
+  :init
+  (setq modus-themes-mode-line '(accented borderless)
+	modus-themes-region '(bg-only)
+	modus-themes-bold-constructs t
+	modus-themes-italic-constructs t
+	modus-themes-paren-match '(bold intense)
+	modus-themes-prompts '(intense)
+	modus-themes-tabs-accented t
+	modus-themes-subtle-line-numbers t
+	modus-themes-lang-checkers '(background faint))
+  :config
+  ;; (load-theme 'modus-operandi t)
+  (setq eldoc-echo-area-use-multiline-p nil)
+  (add-hook 'prog-mode-hook 'my/improve-eldoc-flymake))
+
+;; Use tab to open autocomplete
+(setq tab-always-indent 'complete)
 
 ;; Highlight parens
 (show-paren-mode t)
@@ -297,60 +304,74 @@
 
 ;;;;;;;;;;;;;;;;;;;;; LSP
 
-(use-package lsp-mode
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  :bind
-  ("M-." . #'xref-find-definitions)
+;; (use-package lsp-mode
+;;   :init
+;;   (setq lsp-keymap-prefix "C-c l")
+;;   (setenv "LSP_USE_PLISTS" "true")
+;;   ;; :bind
+;;   ;; (("M-." . #'xref-find-definitions)
+;;   ;;  ("C-c C-j" . #'consult-imenu))
+;;   :hook
+;;   (((go-mode
+;;      clojure-mode
+;;      clojurec-mode
+;;      clojurescript-mode
+;;      elixir-mode
+;;      java-mode
+;;      rust-mode
+;;      rustic-mode) . lsp-deferred))
+;;   (lsp-mode . lsp-enable-which-key-integration)
+;;   :config
+;;   (setq lsp-auto-guess-root t)
+;;   (setq lsp-log-io nil)
+;;   (setq lsp-restart 'auto-restart)
+;;   (setq lsp-enable-symbol-highlighting nil)
+;;   (setq lsp-enable-on-type-formatting nil)
+;;   (setq lsp-signature-auto-activate nil)
+;;   (setq lsp-signature-render-documentation nil)
+;;   (setq lsp-eldoc-hook nil)
+;;   (setq lsp-eldoc-enable-hover nil)
+;;   (setq lsp-modeline-code-actions-enable nil)
+;;   (setq lsp-modeline-diagnostics-enable nil)
+;;   (setq lsp-headerline-breadcrumb-enable nil)
+;;   (setq lsp-semantic-tokens-enable nil)
+;;   (setq lsp-enable-folding nil)
+;;   (setq lsp-enable-imenu nil)
+;;   (setq lsp-enable-snippet nil)
+;;   (setq lsp-idle-delay 0.5)
+;;   (setq lsp-lens-enable nil)
+;;   (setq lsp-use-plists t)
+;;   (setq lsp-completion-provider :none) ;; Use corfu as completion
+;;   :custom
+;;   (lsp-rust-analyzer-cargo-watch-command "clippy")
+;;   :commands lsp)
+
+(use-package eglot
   :hook
-  (((go-mode
-     clojure-mode
+  (((clojure-mode
      clojurec-mode
      clojurescript-mode
      elixir-mode
+     go-mode
      java-mode
      rust-mode
-     rustic-mode) . lsp-deferred))
-  (lsp-mode . lsp-enable-which-key-integration)
+     rustic-mode) . eglot-ensure))
   :config
-  (setq lsp-auto-guess-root t)
-  (setq lsp-log-io nil)
-  (setq lsp-restart 'auto-restart)
-  (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-enable-on-type-formatting nil)
-  (setq lsp-signature-auto-activate nil)
-  (setq lsp-signature-render-documentation nil)
-  (setq lsp-eldoc-hook nil)
-  (setq lsp-eldoc-enable-hover nil)
-  (setq lsp-modeline-code-actions-enable nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-semantic-tokens-enable nil)
-  (setq lsp-enable-folding nil)
-  (setq lsp-enable-imenu nil)
-  (setq lsp-enable-snippet nil)
-  (setq lsp-idle-delay 0.5)
-  (setq lsp-lens-enable nil)
-  (setq lsp-use-plists t)
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-imenu-enable nil)
-  (setq lsp-ui-peek-enable nil)
-  (setq lsp-ui-sideline-enable nil)
-  :custom
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
-  :commands lsp)
+  (setq eglot-extend-to-xref t
+	eglot-ignored-server-capabilites '(:documentHighlightProvider))
+  (add-hook 'eglot-managed-mode-hook 'my/improve-eldoc-flymake))
 
 ;;;;;;;;;;;;;;;;;;;;; CLOJURE
 
 (use-package clojure-mode
   :hook
-  (clojure-mode . paredit-mode)
+  (clojure-mode . smartparens-strict-mode)
   :config
   (setq clojure-align-forms-automatically t))
 
 (use-package cider
   :hook
-  (cider-repl-mode . paredit-mode)
+  (cider-repl-mode . smartparens-strict-mode)
   :bind
   ("C-c M-b" . cider-repl-clear-buffer)
   :config
@@ -390,18 +411,14 @@
 	string)))
   (advice-add 'cider-font-lock-as :override #'custom--cider-font-lock-as))
 
-(use-package helm-cider
-  :hook
-  (cider-mode . helm-cider-mode))
-
 ;;;;;;;;;;;;;;;;;;;;; GO
 
 (use-package go-mode)
 
 ;;;;;;;;;;;;;;;;;;;;; JAVA
 
-(use-package lsp-java
-  :after lsp)
+;; (use-package lsp-java
+;;   :after lsp)
 
 ;;;;;;;;;;;;;;;;;;;;; RUST
 
@@ -436,7 +453,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(safe-local-variable-values '((cider-clojure-cli-aliases . ":dev:test:nrepl"))))
+ '(safe-local-variable-values
+   '((cider-clojure-cli-aliases . ":dev:test")
+     (cider-clojure-cli-aliases . ":dev:test:nrepl"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
