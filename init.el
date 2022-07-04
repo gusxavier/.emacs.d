@@ -19,6 +19,7 @@
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			 ("org" . "https://orgmode.org/elpa/")
 			 ("gnu" . "https://elpa.gnu.org/packages/")))
 
 ;; Activate packages
@@ -45,6 +46,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;; CORE
 
+(defvar my/default-font "Essential PragmataPro")
+
 ;; Show flymake errors first in eldoc
 (defun my/improve-eldoc-flymake ()
   "Improve eldoc and flymake integration."
@@ -56,11 +59,22 @@
 (use-package emacs
   :bind
   (;; Flymake
-   ("M-n" . #'flymake-goto-next-error)
-   ("M-p" . #'flymake-goto-prev-error)
+   ("M-n" . flymake-goto-next-error)
+   ("M-p" . flymake-goto-prev-error)
 
    ;; Modus themes
-   ("<f5>" . #'modus-themes-toggle))
+   ("<f5>" . modus-themes-toggle)
+
+   ;; Project
+   ("C-c p p" . project-switch-project)
+   ("C-c p f" . project-find-file)
+
+   ;; Windmove
+   ;; ("C-x <left>" . windmove-left)
+   ;; ("C-x <down>" . windmove-down)
+   ;; ("C-x <right>" . windmove-right)
+   ;; ("C-x <up>" . windmove-up)
+   )
 
   :hook
   (;; Enable flymake by default
@@ -84,16 +98,16 @@
 
   :config
   ;; Modus themes for the win!
-  (load-theme 'modus-vivendi t)
+  ;; (load-theme 'modus-vivendi t)
 
   ;; Font
   (if (eq system-type 'darwin)
-      (set-face-attribute 'default nil
-			  :font "MonoLisa Custom Light"
-			  :height 160)
-    (set-face-attribute 'default nil
-			:font "MonoLisa Light"
-			:height 140))
+      (set-face-attribute 'default nil :font my/default-font :height 160)
+    (progn
+      (set-face-attribute 'default nil :font my/default-font :height 140)
+      (set-face-attribute 'fixed-pitch nil :font my/default-font :height 140)
+      ;; (set-face-attribute 'variable-pitch nil :font "Roboto" :height 160)
+      ))
 
   ;; Set font encoding to UTF-8
   (set-language-environment "UTF-8")
@@ -146,7 +160,7 @@
   (show-paren-mode t)
 
   ;; Enable moving to buffers using arrow keys
-  (windmove-default-keybindings)
+  ;; (windmove-default-keybindings)
 
   ;; Reload buffers on disk change
   (global-auto-revert-mode t)
@@ -190,17 +204,24 @@
 ;; Theme
 (use-package doom-themes
   :config
-  ;; (load-theme 'doom-dracula t)
+  (load-theme 'doom-one t)
   (setq doom-themes-treemacs-theme "doom-atom"
 	doom-themes-enable-bold t
 	doom-themes-enable-italic t)
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
 
+;; (use-package mood-line
+;;   :init
+;;   (mood-line-mode 1))
+
 ;; Improved modeline
-(use-package mood-line
+(use-package doom-modeline
   :init
-  (mood-line-mode 1))
+  (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-height 36
+	doom-modeline-bar-width 4))
 
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
 
@@ -410,6 +431,69 @@
 ;;;;;;;;;;;;;;;;;;;;; YAML
 
 (use-package yaml-mode)
+
+;;;;;;;;;;;;;;;;;;;;; ORG
+
+(defun my/org-mode-setup ()
+  "Custom 'org-mode' setup."
+  (org-indent-mode)
+  ;; (variable-pitch-mode 1)
+  (visual-line-mode 1)
+  ;; Change cursor to bar so it looks better
+  ;; with variable width fonts
+  ;; (setq cursor-type 'bar)
+  )
+
+(use-package org
+  :hook
+  (org-mode . my/org-mode-setup)
+
+  :config
+  (setq org-ellipsis " ▾"
+	org-hide-emphasis-markers t)
+
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font my/default-font :weight 'regular :height (cdr face)))
+
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•")))))))
+
+(use-package org-bullets
+  :after org
+  :hook
+  (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(defun my/org-mode-visual-fill ()
+  "Custom 'visual-fill' setup."
+  (setq visual-fill-column-width 100
+	visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . my/org-mode-visual-fill))
+
+;;;;;;;;;;;;;;;;;;;;; EMACSCLIENT
 
 ;; Start emacs server to enable emacsclient
 (if (and (fboundp 'server-running-p)
