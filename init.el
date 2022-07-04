@@ -43,21 +43,149 @@
   :init
   (diminish 'eldoc-mode))
 
+;;;;;;;;;;;;;;;;;;;;; CORE
+
+;; Show flymake errors first in eldoc
+(defun my/improve-eldoc-flymake ()
+  "Improve eldoc and flymake integration."
+  (setq eldoc-documentation-functions
+        (cons #'flymake-eldoc-function
+              (remove #'flymake-eldoc-function eldoc-documentation-functions)))
+  (setq eldoc-documentation-strategy #'eldoc-documentation-compose))
+
+(use-package emacs
+  :bind
+  (;; Flymake
+   ("M-n" . #'flymake-goto-next-error)
+   ("M-p" . #'flymake-goto-prev-error)
+
+   ;; Modus themes
+   ("<f5>" . #'modus-themes-toggle))
+
+  :hook
+  (;; Enable flymake by default
+   (prog-mode . flymake-mode)
+   (text-mode . flymake-mode)
+
+   ;; Enable smartparens when editting elisp
+   (elisp-mode . smartparens-strict-mode))
+
+  :init
+  ;; Modus themes improvements
+  (setq modus-themes-mode-line '(accented borderless)
+	modus-themes-region '(bg-only)
+	modus-themes-bold-constructs t
+	modus-themes-italic-constructs t
+	modus-themes-paren-match '(bold intense)
+	modus-themes-prompts '(intense)
+	modus-themes-tabs-accented t
+	modus-themes-subtle-line-numbers t
+	modus-themes-lang-checkers '(background faint))
+
+  :config
+  ;; Modus themes for the win!
+  (load-theme 'modus-vivendi t)
+
+  ;; Font
+  (if (eq system-type 'darwin)
+      (set-face-attribute 'default nil
+			  :font "MonoLisa Custom Light"
+			  :height 160)
+    (set-face-attribute 'default nil
+			:font "MonoLisa Light"
+			:height 140))
+
+  ;; Set font encoding to UTF-8
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8-unix)
+
+  ;; Avoid slowness with some fonts
+  (setq inhibit-compacting-font-caches t)
+
+  ;; Remove scroll bar
+  (scroll-bar-mode -1)
+
+  ;; Remove top bar
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+
+  ;; Remove tooltips
+  (tooltip-mode -1)
+
+  ;; Highlight current line
+  (add-hook 'prog-mode-hook #'hl-line-mode)
+  (add-hook 'text-mode-hook #'hl-line-mode)
+
+  ;; Show line numbers
+  (global-display-line-numbers-mode t)
+
+  ;; Show cursor position
+  (line-number-mode t)
+  (column-number-mode t)
+
+  ;; Smooth scrolling
+  (setq scroll-margin 0
+	scroll-conservatively 100000
+	scroll-preserve-screen-position 1
+	auto-window-vscroll nil)
+
+  ;; Disable startup screen
+  (setq inhibit-startup-message t)
+
+  ;; Set window as maximized
+  (toggle-frame-maximized)
+
+  ;; Fix eldoc overriding flymake errors
+  (setq eldoc-echo-area-use-multiline-p nil)
+  (add-hook 'prog-mode-hook 'my/improve-eldoc-flymake)
+
+  ;; Use tab to open autocomplete
+  (setq tab-always-indent 'complete)
+
+  ;; Highlight parens
+  (show-paren-mode t)
+
+  ;; Enable moving to buffers using arrow keys
+  (windmove-default-keybindings)
+
+  ;; Reload buffers on disk change
+  (global-auto-revert-mode t)
+
+  ;; Just type y or n instead of yes or no
+  (fset 'yes-or-no-p 'y-or-n-p)
+
+  ;; Avoid generating auto save files
+  (setq auto-save-default nil)
+  (setq create-lockfiles nil)
+  (setq make-backup-files nil)
+
+  ;; Set command as meta key in mac
+  (when (eq system-type 'darwin)
+    (setq mac-option-key-is-meta nil
+	  mac-command-key-is-meta t
+	  mac-command-modifier 'meta
+	  mac-option-modifier 'none))
+
+  ;; Ask before exit
+  (setq confirm-kill-emacs 'y-or-n-p)
+
+  ;; At last some piece and quiet
+  (setq visible-bell t)
+  (setq ring-bell-function 'ignore)
+
+  ;; Remove blinking cursor
+  (blink-cursor-mode -1)
+
+  ;; Performance tunning
+  (setq gc-cons-threshold 100000000)
+  (setq read-process-output-max (* 1024 1024)))
+
 ;;;;;;;;;;;;;;;;;;;;; UI
 
 ;; Better icons
 ;; Run M-x all-the-icons-install-fonts in the first time
 (use-package all-the-icons
   :if (display-graphic-p))
-
-;; Font
-(if (eq system-type 'darwin)
-    (set-face-attribute 'default nil
-			:font "MonoLisa Custom Light"
-			:height 160)
-  (set-face-attribute 'default nil
-			:font "MonoLisa Light"
-			:height 140))
 
 ;; Theme
 (use-package doom-themes
@@ -74,48 +202,9 @@
   :init
   (mood-line-mode 1))
 
-;; Set font encoding to UTF-8
-(set-language-environment "UTF-8")
-(set-default-coding-systems 'utf-8-unix)
-
-;; Avoid slowness with some fonts
-(setq inhibit-compacting-font-caches t)
-
-;; Remove scroll bar
-(scroll-bar-mode -1)
-
-;; Remove top bar
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-
-;; Remove tooltips
-(tooltip-mode -1)
-
-;; Highlight current line
-(add-hook 'prog-mode-hook #'hl-line-mode)
-(add-hook 'text-mode-hook #'hl-line-mode)
-
-;; Show line numbers
-(global-display-line-numbers-mode t)
-
-;; Show cursor position
-(line-number-mode t)
-(column-number-mode t)
-
-;; Smooth scrolling
-(setq scroll-margin 0
-      scroll-conservatively 100000
-      scroll-preserve-screen-position 1
-      auto-window-vscroll nil)
-
-;; Disable startup screen
-(setq inhibit-startup-message t)
-
-;; Set window as maximized
-(toggle-frame-maximized)
-
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
 
+;; Autocomplete
 (use-package corfu
   :after orderless
   :init
@@ -141,6 +230,25 @@
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref))
 
+;; LSP client
+(use-package eglot
+  :hook
+  (((clojure-mode
+     clojurec-mode
+     clojurescript-mode
+     elixir-mode
+     go-mode
+     java-mode
+     python-mode
+     rust-mode
+     rustic-mode) . eglot-ensure))
+  :config
+  (setq eglot-extend-to-xref t
+	eglot-ignored-server-capabilites '(:documentHighlightProvider)
+	eglot-connect-timeout 120)
+  (add-hook 'eglot-managed-mode-hook 'my/improve-eldoc-flymake))
+
+;; Basically a right click but with buffers
 (use-package embark
   :bind
   (("C-." . embark-act)
@@ -153,6 +261,7 @@
                  nil
                  (window-parameters (mode-line-format . none)))))
 
+;; Embark + Consult = <3
 (use-package embark-consult
   :after (embark consult)
   :demand t
@@ -227,147 +336,6 @@
   :diminish
   :config
   (which-key-mode +1))
-
-;; Show flymake errors first in eldoc
-(defun my/improve-eldoc-flymake ()
-  "Improve eldoc and flymake integration."
-  (setq eldoc-documentation-functions
-        (cons #'flymake-eldoc-function
-              (remove #'flymake-eldoc-function eldoc-documentation-functions)))
-  (setq eldoc-documentation-strategy #'eldoc-documentation-compose))
-
-;; Emacs core config
-(use-package emacs
-  :bind
-  (;; Flymake
-   ("M-n" . #'flymake-goto-next-error)
-   ("M-p" . #'flymake-goto-prev-error)
-   ;; Modus themes
-   ("<f5>" . #'modus-themes-toggle))
-  :hook
-  (;; Enable flymake by default
-   (prog-mode . flymake-mode)
-   (text-mode . flymake-mode)
-   ;; Enable smartparens when editting elisp
-   (elisp-mode . smartparens-strict-mode))
-  :init
-  ;; Modus themes improvements
-  (setq modus-themes-mode-line '(accented borderless)
-	modus-themes-region '(bg-only)
-	modus-themes-bold-constructs t
-	modus-themes-italic-constructs t
-	modus-themes-paren-match '(bold intense)
-	modus-themes-prompts '(intense)
-	modus-themes-tabs-accented t
-	modus-themes-subtle-line-numbers t
-	modus-themes-lang-checkers '(background faint))
-  :config
-  (load-theme 'modus-vivendi t)
-
-  ;; Fix eldoc overriding flymake errors
-  (setq eldoc-echo-area-use-multiline-p nil)
-  (add-hook 'prog-mode-hook 'my/improve-eldoc-flymake))
-
-;; Use tab to open autocomplete
-(setq tab-always-indent 'complete)
-
-;; Highlight parens
-(show-paren-mode t)
-
-;; Enable moving to buffers using arrow keys
-(windmove-default-keybindings)
-
-;; Reload buffers on disk change
-(global-auto-revert-mode t)
-
-;; Just type y or n instead of yes or no
-(fset 'yes-or-no-p 'y-or-n-p)
-
-;; Avoid generating auto save files
-(setq auto-save-default nil)
-(setq create-lockfiles nil)
-(setq make-backup-files nil)
-
-;; Set command as meta key in mac
-(when (eq system-type 'darwin)
-  (setq mac-option-key-is-meta nil
-	mac-command-key-is-meta t
-	mac-command-modifier 'meta
-	mac-option-modifier 'none))
-
-;; Ask before exit
-(setq confirm-kill-emacs 'y-or-n-p)
-
-;; At last some piece and quiet
-(setq visible-bell t)
-(setq ring-bell-function 'ignore)
-
-;; Remove blinking cursor
-(blink-cursor-mode -1)
-
-;; Performance tunning
-(setq gc-cons-threshold 100000000)
-(setq read-process-output-max (* 1024 1024))
-
-;;;;;;;;;;;;;;;;;;;;; LSP
-
-;; (use-package lsp-mode
-;;   :init
-;;   (setq lsp-keymap-prefix "C-c l")
-;;   (setenv "LSP_USE_PLISTS" "true")
-;;   ;; :bind
-;;   ;; (("M-." . #'xref-find-definitions)
-;;   ;;  ("C-c C-j" . #'consult-imenu))
-;;   :hook
-;;   (((go-mode
-;;      clojure-mode
-;;      clojurec-mode
-;;      clojurescript-mode
-;;      elixir-mode
-;;      java-mode
-;;      rust-mode
-;;      rustic-mode) . lsp-deferred))
-;;   (lsp-mode . lsp-enable-which-key-integration)
-;;   :config
-;;   (setq lsp-auto-guess-root t)
-;;   (setq lsp-log-io nil)
-;;   (setq lsp-restart 'auto-restart)
-;;   (setq lsp-enable-symbol-highlighting nil)
-;;   (setq lsp-enable-on-type-formatting nil)
-;;   (setq lsp-signature-auto-activate nil)
-;;   (setq lsp-signature-render-documentation nil)
-;;   (setq lsp-eldoc-hook nil)
-;;   (setq lsp-eldoc-enable-hover nil)
-;;   (setq lsp-modeline-code-actions-enable nil)
-;;   (setq lsp-modeline-diagnostics-enable nil)
-;;   (setq lsp-headerline-breadcrumb-enable nil)
-;;   (setq lsp-semantic-tokens-enable nil)
-;;   (setq lsp-enable-folding nil)
-;;   (setq lsp-enable-imenu nil)
-;;   (setq lsp-enable-snippet nil)
-;;   (setq lsp-idle-delay 0.5)
-;;   (setq lsp-lens-enable nil)
-;;   (setq lsp-use-plists t)
-;;   (setq lsp-completion-provider :none) ;; Use corfu as completion
-;;   :custom
-;;   (lsp-rust-analyzer-cargo-watch-command "clippy")
-;;   :commands lsp)
-
-(use-package eglot
-  :hook
-  (((clojure-mode
-     clojurec-mode
-     clojurescript-mode
-     elixir-mode
-     go-mode
-     java-mode
-     rust-mode
-     rustic-mode) . eglot-ensure))
-  :config
-  (setq eglot-extend-to-xref t
-	eglot-ignored-server-capabilites '(:documentHighlightProvider)
-	eglot-connect-timeout 120)
-  (add-hook 'eglot-managed-mode-hook 'my/improve-eldoc-flymake))
 
 ;;;;;;;;;;;;;;;;;;;;; CLOJURE
 
