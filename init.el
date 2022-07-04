@@ -46,7 +46,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;; CORE
 
-(defvar my/default-font "Essential PragmataPro")
+(defvar my/default-font "MonoLisa Light")
 
 ;; Show flymake errors first in eldoc
 (defun my/improve-eldoc-flymake ()
@@ -102,12 +102,8 @@
 
   ;; Font
   (if (eq system-type 'darwin)
-      (set-face-attribute 'default nil :font my/default-font :height 160)
-    (progn
-      (set-face-attribute 'default nil :font my/default-font :height 140)
-      (set-face-attribute 'fixed-pitch nil :font my/default-font :height 140)
-      ;; (set-face-attribute 'variable-pitch nil :font "Roboto" :height 160)
-      ))
+      (set-face-attribute 'default nil :font my/default-font :height 170)
+    (set-face-attribute 'default nil :font my/default-font :height 140))
 
   ;; Set font encoding to UTF-8
   (set-language-environment "UTF-8")
@@ -145,9 +141,6 @@
 
   ;; Disable startup screen
   (setq inhibit-startup-message t)
-
-  ;; Set window as maximized
-  (toggle-frame-maximized)
 
   ;; Fix eldoc overriding flymake errors
   (setq eldoc-echo-area-use-multiline-p nil)
@@ -437,29 +430,24 @@
 (defun my/org-mode-setup ()
   "Custom 'org-mode' setup."
   (org-indent-mode)
-  ;; (variable-pitch-mode 1)
-  (visual-line-mode 1)
-  ;; Change cursor to bar so it looks better
-  ;; with variable width fonts
-  ;; (setq cursor-type 'bar)
-  )
+  (visual-line-mode 1))
 
 (use-package org
   :hook
   (org-mode . my/org-mode-setup)
 
   :config
-  (setq org-ellipsis " ▾"
-	org-hide-emphasis-markers t)
+  (setq org-ellipsis " ▾")
+  (setq org-hide-emphasis-markers t)
+  (setq org-todo-keywords
+	'((sequence "TODO(t)" "NEXT(n)" "REVIEW(r)" "|" "DONE(d!)")))
 
-  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+  (setq org-agenda-files '("~/dev/org-files/Tasks.org"
+			   "~/dev/org-files/Birthdays.org"))
+
+  (setq org-agenda-start-with-log-mode t)
+
+  (setq org-log-done 'time)
 
   ;; Set faces for heading levels
   (dolist (face '((org-level-1 . 1.2)
@@ -483,15 +471,6 @@
   (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
-
-(defun my/org-mode-visual-fill ()
-  "Custom 'visual-fill' setup."
-  (setq visual-fill-column-width 100
-	visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
-
-(use-package visual-fill-column
-  :hook (org-mode . my/org-mode-visual-fill))
 
 ;;;;;;;;;;;;;;;;;;;;; EMACSCLIENT
 
