@@ -46,17 +46,18 @@
 
 (set-face-attribute 'default nil
 		    :family my/default-font
-		    :height my/default-font-height)
+		    :height my/default-font-height
+		    :weight 'regular)
 
 ;; Enable PragmataPro font ligatures
-(add-to-list 'load-path "~/.emacs.d/custom")
+(add-to-list 'load-path "~/.emacs.d/custom/")
 (require 'pragmatapro-lig)
-(add-hook 'text-mode-hook 'pragmatapro-lig-mode)
+(pragmatapro-lig-global-mode)
 
 (use-package emacs
   :bind
-  (("C-c p p" . project-switch-project)
-   ("C-c p f" . project-find-file))
+  (("C-c p p" . 'project-switch-project)
+   ("C-c p f" . 'project-find-file))
 
   :hook
   ((elisp-mode . smartparens-strict-mode))
@@ -166,10 +167,9 @@
 ;; Improved modeline
 (use-package doom-modeline
   :init
-  (doom-modeline-mode 1)
-  :config
   (set-face-attribute 'mode-line nil
-		      :height (- my/default-font-height 20)))
+		      :height (- my/default-font-height 20))
+  (doom-modeline-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
 
@@ -186,10 +186,10 @@
 (use-package consult
   :after vertico
   :bind
-  (("C-s" . consult-line)
-   ("C-x b" . consult-buffer)
-   ("C-c C-j" . consult-imenu)
-   ("C-c p s s" . consult-ripgrep))
+  (("C-s" . 'consult-line)
+   ("C-x b" . 'consult-buffer)
+   ("C-c C-j" . 'consult-imenu)
+   ("C-c p s s" . 'consult-ripgreg))
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
   :init
@@ -198,39 +198,6 @@
   (advice-add #'register-preview :override #'consult-register-window)
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref))
-
-;; LSP client
-(use-package lsp-mode
-  :init
-  (setenv "LSP_USE_PLISTS" "true")
-  (setq lsp-keymap-prefix "C-c l")
-  :hook
-  (lsp-mode . lsp-enable-which-key-integration)
-  :config
-  (setq lsp-auto-guess-root t)
-  (setq lsp-log-io nil)
-  (setq lsp-restart 'auto-restart)
-  (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-enable-on-type-formatting nil)
-  (setq lsp-signature-auto-activate nil)
-  (setq lsp-signature-render-documentation nil)
-  (setq lsp-eldoc-hook nil)
-  (setq lsp-eldoc-enable-hover nil)
-  (setq lsp-modeline-code-actions-enable nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-semantic-tokens-enable nil)
-  (setq lsp-enable-folding nil)
-  (setq lsp-enable-imenu nil)
-  (setq lsp-enable-snippet nil)
-  (setq lsp-idle-delay 0.5)
-  (setq lsp-lens-enable nil)
-  (setq lsp-use-plists t)
-  ;; Use corfu as completion
-  (setq lsp-completion-provider :none)
-  :custom
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
-  :commands (lsp lsp-deferred))
 
 ;; Basically a right click but with buffers
 (use-package embark
@@ -272,8 +239,44 @@
   :config
   (global-flycheck-mode +1))
 
+;; LSP client
+(use-package lsp-mode
+  :init
+  (setenv "LSP_USE_PLISTS" "true")
+  (setq lsp-keymap-prefix "C-c l")
+  :hook
+  (lsp-mode . lsp-enable-which-key-integration)
+  :config
+  (setq lsp-log-io nil)
+  (setq lsp-restart 'auto-restart)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-enable-folding nil)
+  (setq lsp-enable-imenu nil)
+  (setq lsp-enable-snippet nil)
+  (setq lsp-lens-enable nil)
+  (setq lsp-use-plists t)
+  (setq lsp-enable-indentation nil)
+  ;; Use corfu as completion
+  (setq lsp-completion-provider :none)
+  :custom
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  :commands (lsp lsp-deferred))
+
+;; LSP + Treemacs integration
+(use-package lsp-treemacs
+  :after lsp)
+
 ;; Git + Emacs = <3
-(use-package magit)
+(use-package magit
+  :commands
+  magit-status
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 ;; Annotations in the completion framework
 (use-package marginalia
@@ -348,10 +351,7 @@
   (setq cider-prompt-for-symbol nil)
   
   (setq cider-test-defining-forms
-	(delete-dups (append cider-test-defining-forms '("defflow"
-							 "defflow-i18n"
-							 "defflow-loopback-false"
-							 "defflow-new-system!"))))
+	'("deftest" "defspec" "defflow" "init-flow"))
 
   (setq cider-test-show-report-on-success t)
 
@@ -433,17 +433,6 @@
   (setq org-agenda-start-with-log-mode t)
 
   (setq org-log-done 'time)
-
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font my/default-font :weight 'regular :height (cdr face)))
 
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
