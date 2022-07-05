@@ -36,40 +36,32 @@
 
 ;; Avoid writing package-selected-packages on init.el
 (defun package--save-selected-packages (&rest _opt)
-  "Avoid writing 'package-selected-packages' on init.el."
+  "Avoid writing `package-selected-packages' on init.el."
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;; CORE
 
-(defvar my/default-font "Essential PragmataPro")
+(defvar my/default-font "PragmataPro Liga")
+(defvar my/default-font-height (if (eq system-type 'darwin) 220 180))
 
-;; Shorten minor modes (to be used with use-package)
-(use-package diminish
-  :init
-  (diminish 'eldoc-mode))
+(set-face-attribute 'default nil
+		    :family my/default-font
+		    :height my/default-font-height)
+
+;; Enable PragmataPro font ligatures
+(add-to-list 'load-path "~/.emacs.d/custom")
+(require 'pragmatapro-lig)
+(add-hook 'text-mode-hook 'pragmatapro-lig-mode)
 
 (use-package emacs
   :bind
-  (;; Project
-   ("C-c p p" . project-switch-project)
-   ("C-c p f" . project-find-file)
-
-   ;; Windmove
-   ;; ("C-x <left>" . windmove-left)
-   ;; ("C-x <down>" . windmove-down)
-   ;; ("C-x <right>" . windmove-right)
-   ;; ("C-x <up>" . windmove-up)
-   )
+  (("C-c p p" . project-switch-project)
+   ("C-c p f" . project-find-file))
 
   :hook
   ((elisp-mode . smartparens-strict-mode))
 
   :config
-  ;; Font
-  (if (eq system-type 'darwin)
-      (set-face-attribute 'default nil :font my/default-font :height 170)
-    (set-face-attribute 'default nil :font my/default-font :height 180))
-
   ;; Set font encoding to UTF-8
   (set-language-environment "UTF-8")
   (set-default-coding-systems 'utf-8-unix)
@@ -93,6 +85,16 @@
 
   ;; Show line numbers
   (global-display-line-numbers-mode t)
+
+  ;; Disable line numbers for some modes
+  (dolist (mode '(org-mode-hook
+                  term-mode-hook
+                  shell-mode-hook
+                  treemacs-mode-hook
+                  eshell-mode-hook
+		  cider-repl-mode-hook
+		  cider-stacktrace-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
   ;; Show cursor position
   (line-number-mode t)
@@ -158,17 +160,16 @@
 ;; Theme
 (use-package doom-themes
   :config
-  (load-theme 'doom-palenight t))
+  (setq doom-themes-padded-modeline t)
+  (load-theme 'doom-nord t))
 
 ;; Improved modeline
-;; (use-package doom-modeline
-;;   :init
-;;   (doom-modeline-mode 1)
-;;   :custom
-;;   ((doom-modeline-height 40))
-;;   :config
-;;   (set-face-attribute 'mode-line nil :height 160)
-;;   (set-face-attribute 'mode-line-inactive nil :height 160))
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode 1)
+  :config
+  (set-face-attribute 'mode-line nil
+		      :height (- my/default-font-height 20)))
 
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
 
@@ -263,7 +264,6 @@
 
 ;; Highlight errors on buffer
 (use-package flycheck
-  :diminish
   :config
   (global-flycheck-mode +1))
 
@@ -300,7 +300,6 @@
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
-  :diminish
   :init
   (require 'smartparens-config)
   (smartparens-global-mode +1)
@@ -322,7 +321,6 @@
 
 ;; Show command suggestions
 (use-package which-key
-  :diminish
   :config
   (which-key-mode +1))
 
@@ -336,8 +334,6 @@
   (setq clojure-align-forms-automatically t))
 
 (use-package cider
-  :hook
-  (cider-repl-mode . smartparens-strict-mode)
   :bind
   ("C-c M-b" . cider-repl-clear-buffer)
   :config
