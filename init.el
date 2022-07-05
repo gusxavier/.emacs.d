@@ -39,33 +39,18 @@
   "Avoid writing 'package-selected-packages' on init.el."
   nil)
 
+;;;;;;;;;;;;;;;;;;;;; CORE
+
+(defvar my/default-font "Essential PragmataPro")
+
 ;; Shorten minor modes (to be used with use-package)
 (use-package diminish
   :init
   (diminish 'eldoc-mode))
 
-;;;;;;;;;;;;;;;;;;;;; CORE
-
-(defvar my/default-font "MonoLisa Light")
-
-;; Show flymake errors first in eldoc
-(defun my/improve-eldoc-flymake ()
-  "Improve eldoc and flymake integration."
-  (setq eldoc-documentation-functions
-        (cons #'flymake-eldoc-function
-              (remove #'flymake-eldoc-function eldoc-documentation-functions)))
-  (setq eldoc-documentation-strategy #'eldoc-documentation-compose))
-
 (use-package emacs
   :bind
-  (;; Flymake
-   ("M-n" . flymake-goto-next-error)
-   ("M-p" . flymake-goto-prev-error)
-
-   ;; Modus themes
-   ("<f5>" . modus-themes-toggle)
-
-   ;; Project
+  (;; Project
    ("C-c p p" . project-switch-project)
    ("C-c p f" . project-find-file)
 
@@ -77,33 +62,13 @@
    )
 
   :hook
-  (;; Enable flymake by default
-   (prog-mode . flymake-mode)
-   (text-mode . flymake-mode)
-
-   ;; Enable smartparens when editting elisp
-   (elisp-mode . smartparens-strict-mode))
-
-  :init
-  ;; Modus themes improvements
-  (setq modus-themes-mode-line '(accented borderless)
-	modus-themes-region '(bg-only)
-	modus-themes-bold-constructs t
-	modus-themes-italic-constructs t
-	modus-themes-paren-match '(bold intense)
-	modus-themes-prompts '(intense)
-	modus-themes-tabs-accented t
-	modus-themes-subtle-line-numbers t
-	modus-themes-lang-checkers '(background faint))
+  ((elisp-mode . smartparens-strict-mode))
 
   :config
-  ;; Modus themes for the win!
-  ;; (load-theme 'modus-vivendi t)
-
   ;; Font
   (if (eq system-type 'darwin)
       (set-face-attribute 'default nil :font my/default-font :height 170)
-    (set-face-attribute 'default nil :font my/default-font :height 140))
+    (set-face-attribute 'default nil :font my/default-font :height 180))
 
   ;; Set font encoding to UTF-8
   (set-language-environment "UTF-8")
@@ -141,10 +106,6 @@
 
   ;; Disable startup screen
   (setq inhibit-startup-message t)
-
-  ;; Fix eldoc overriding flymake errors
-  (setq eldoc-echo-area-use-multiline-p nil)
-  (add-hook 'prog-mode-hook 'my/improve-eldoc-flymake)
 
   ;; Use tab to open autocomplete
   (setq tab-always-indent 'complete)
@@ -197,24 +158,17 @@
 ;; Theme
 (use-package doom-themes
   :config
-  (load-theme 'doom-one t)
-  (setq doom-themes-treemacs-theme "doom-atom"
-	doom-themes-enable-bold t
-	doom-themes-enable-italic t)
-  (doom-themes-treemacs-config)
-  (doom-themes-org-config))
-
-;; (use-package mood-line
-;;   :init
-;;   (mood-line-mode 1))
+  (load-theme 'doom-palenight t))
 
 ;; Improved modeline
-(use-package doom-modeline
-  :init
-  (doom-modeline-mode 1)
-  :config
-  (setq doom-modeline-height 36
-	doom-modeline-bar-width 4))
+;; (use-package doom-modeline
+;;   :init
+;;   (doom-modeline-mode 1)
+;;   :custom
+;;   ((doom-modeline-height 40))
+;;   :config
+;;   (set-face-attribute 'mode-line nil :height 160)
+;;   (set-face-attribute 'mode-line-inactive nil :height 160))
 
 ;;;;;;;;;;;;;;;;;;;;; GENERAL
 
@@ -245,22 +199,37 @@
         xref-show-definitions-function #'consult-xref))
 
 ;; LSP client
-(use-package eglot
+(use-package lsp-mode
+  :init
+  (setenv "LSP_USE_PLISTS" "true")
+  (setq lsp-keymap-prefix "C-c l")
   :hook
-  (((clojure-mode
-     clojurec-mode
-     clojurescript-mode
-     elixir-mode
-     go-mode
-     java-mode
-     python-mode
-     rust-mode
-     rustic-mode) . eglot-ensure))
+  (lsp-mode . lsp-enable-which-key-integration)
   :config
-  (setq eglot-extend-to-xref t
-	eglot-ignored-server-capabilites '(:documentHighlightProvider)
-	eglot-connect-timeout 120)
-  (add-hook 'eglot-managed-mode-hook 'my/improve-eldoc-flymake))
+  (setq lsp-auto-guess-root t)
+  (setq lsp-log-io nil)
+  (setq lsp-restart 'auto-restart)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-signature-render-documentation nil)
+  (setq lsp-eldoc-hook nil)
+  (setq lsp-eldoc-enable-hover nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-semantic-tokens-enable nil)
+  (setq lsp-enable-folding nil)
+  (setq lsp-enable-imenu nil)
+  (setq lsp-enable-snippet nil)
+  (setq lsp-idle-delay 0.5)
+  (setq lsp-lens-enable nil)
+  (setq lsp-use-plists t)
+  ;; Use corfu as completion
+  (setq lsp-completion-provider :none)
+  :custom
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  :commands (lsp lsp-deferred))
 
 ;; Basically a right click but with buffers
 (use-package embark
@@ -291,6 +260,12 @@
 (use-package expand-region
   :bind
   ("C-=" . er/expand-region))
+
+;; Highlight errors on buffer
+(use-package flycheck
+  :diminish
+  :config
+  (global-flycheck-mode +1))
 
 ;; Git + Emacs = <3
 (use-package magit)
@@ -355,7 +330,8 @@
 
 (use-package clojure-mode
   :hook
-  (clojure-mode . smartparens-strict-mode)
+  ((clojure-mode . smartparens-strict-mode)
+   (clojure-mode . lsp-deferred))
   :config
   (setq clojure-align-forms-automatically t))
 
@@ -403,19 +379,27 @@
 
 ;;;;;;;;;;;;;;;;;;;;; GO
 
-(use-package go-mode)
+(use-package go-mode
+  :hook
+  (go-mode . lsp-deferred))
 
 ;;;;;;;;;;;;;;;;;;;;; RUST
 
-(use-package rustic)
+(use-package rustic
+  :hook
+  (rustic-mode . lsp-deferred))
 
 ;;;;;;;;;;;;;;;;;;;;; TYPESCRIPT
 
-(use-package typescript-mode)
+(use-package typescript-mode
+  :hook
+  (typescript-mode . lsp-deferred))
 
 ;;;;;;;;;;;;;;;;;;;;; ELIXIR
 
-(use-package elixir-mode)
+(use-package elixir-mode
+  :hook
+  (elixir-mode . lsp-deferred))
 
 ;;;;;;;;;;;;;;;;;;;;; GRAPHQL
 
