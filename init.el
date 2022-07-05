@@ -252,6 +252,11 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
+;; Better comments
+(use-package evil-nerd-commenter
+  :bind
+  (("M-;" . 'evilnc-comment-or-uncomment-lines)))
+
 ;; Load env variables from PATH inside Emacs
 (use-package exec-path-from-shell
   :init
