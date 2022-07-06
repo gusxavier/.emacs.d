@@ -186,10 +186,13 @@
 (use-package consult
   :after vertico
   :bind
-  (("C-s" . 'consult-line)
-   ("C-x b" . 'consult-buffer)
-   ("C-c C-j" . 'consult-imenu)
-   ("C-c p s s" . 'consult-ripgreg))
+  (("C-s" . consult-line)
+   ("C-x b" . consult-buffer)
+   ("C-c C-j" . consult-imenu)
+   ("C-c p s s" . consult-ripgrep)
+   ("M-g g" . consult-goto-line)
+   :map minibuffer-local-map
+   ("C-h" . consult-history))
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
   :init
