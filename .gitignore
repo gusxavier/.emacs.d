@@ -24,3 +24,4 @@ eln-cache/
 flycheck_init.el
 projects
 history
+var/

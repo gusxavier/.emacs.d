@@ -1,3 +1,11 @@
+(defun my/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections"
+           (format "%.2f seconds"
+                   (float-time (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'my/display-startup-time)
+
 ;;; package --- Summary
 
 ;;; Commentary:
@@ -50,6 +58,12 @@
 ;; Increase the number of bytes read from subprocesses
 (setq read-process-output-max (* 1024 1024))
 
+(use-package no-littering)
+
+;; Store auto save files in the no-littering specific dir
+(setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
 ;; Reload buffers on disk change
 (global-auto-revert-mode t)
 
@@ -58,9 +72,9 @@
 
 ;; Avoid generating auto save files
 ;; [TODO]: use no-littering package
-(setq auto-save-default nil)
-(setq create-lockfiles nil)
-(setq make-backup-files nil)
+;; (setq auto-save-default nil)
+;; (setq create-lockfiles nil)
+;; (setq make-backup-files nil)
 
 ;; Set command as meta key in mac
 (when (eq system-type 'darwin)
@@ -74,13 +88,16 @@
 
 ;; Better comments
 (use-package evil-nerd-commenter
+  :defer t
   :bind
   (("M-;" . 'evilnc-comment-or-uncomment-lines)))
 
 ;; Load env variables from PATH inside Emacs
-(use-package exec-path-from-shell
-  :init
-  (exec-path-from-shell-initialize))
+;; P.S: only needed for Mac OS
+(when (eq system-type 'darwin)
+  (use-package exec-path-from-shell
+    :config
+    (exec-path-from-shell-initialize)))
 
 ;; Select regions by expanding chunks of text
 (use-package expand-region
@@ -94,6 +111,7 @@
 
 ;; Show keybindings suggestions
 (use-package which-key
+  :defer 0
   :config
   (which-key-mode +1))
 
@@ -107,9 +125,9 @@
 
 ;; Better completion style
 (use-package orderless
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  :init
+  (setq completion-styles '(orderless basic))
+  (setq completion-category-overrides '((file (styles basic partial-completion)))))
 
 ;; Completion framework
 (use-package vertico
@@ -130,7 +148,7 @@
    ("C-h" . consult-history))
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
-  :init
+  :config
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
@@ -143,7 +161,7 @@
   (("C-." . embark-act)
    ("M-." . embark-dwim)
    ("C-h B" . embark-bindings))
-  :init
+  :config
   (setq prefix-help-command #'embark-prefix-help-command)
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
@@ -153,7 +171,6 @@
 ;; Embark + Consult = <3
 (use-package embark-consult
   :after (embark consult)
-  :demand t
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
@@ -171,11 +188,11 @@
 
 ;; Highlight errors on buffer
 (use-package flycheck
-  :config
-  (global-flycheck-mode +1))
+  :hook (prog-mode . flycheck-mode))
 
 ;; Terminal inside emacs
-(use-package vterm)
+(use-package vterm
+  :commands vterm)
 
 ;; Use same keybindings as projectile
 (global-set-key (kbd "C-c p p") 'project-switch-project)
@@ -187,6 +204,10 @@
   (visual-line-mode 1))
 
 (use-package org
+  :pin org
+
+  :commands (org-capute org-agenda)
+
   :hook
   (org-mode . my/org-mode-setup)
 
@@ -203,7 +224,28 @@
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
                           '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•")))))))
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((emacs-lisp . t)))
+
+  (setq org-confirm-babel-evaluate nil)
+
+  (defun my/org-babel-tangle-config ()
+    (when (string-equal (buffer-file-name)
+                        (expand-file-name "Emacs.org" user-emacs-directory))
+      ;; Dynamic scoping to the rescue
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
+
+  ;; Automatically tangle our Emacs.org config file when we save it
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (add-hook 'after-save-hook #'my/org-babel-tangle-config))))
 
 (use-package org-bullets
   :after org
@@ -211,28 +253,6 @@
   (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
-
-(org-babel-do-load-languages 'org-babel-load-languages
-                             '((emacs-lisp . t)))
-
-(with-eval-after-load 'org
-  (require 'org-tempo)
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
-
-(setq org-confirm-babel-evaluate nil)
-
-;; Automatically tangle our Emacs.org config file when we save it
-(defun my/org-babel-tangle-config ()
-  (when (string-equal (file-name-directory (buffer-file-name))
-                      (expand-file-name user-emacs-directory))
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-(add-hook 'org-mode-hook
-          (lambda ()
-            (add-hook 'after-save-hook #'my/org-babel-tangle-config)))
 
 (defvar my/default-font "PragmataPro Liga")
 
@@ -314,8 +334,7 @@
 ;; File tree sidebar
 (use-package treemacs
   :bind
-  ("<f8>" . treemacs)
-  :config)
+  ("<f8>" . treemacs))
 
 ;; Show each delimiter (parenthesis, brackets, etc) with different colors
 (use-package rainbow-delimiters
@@ -355,29 +374,31 @@
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
-  :init
+  :hook
+  ((prog-mode . smartparens-strict-mode)
+   (org-mode . smartparens-strict-mode))
+  :config
   (require 'smartparens-config)
-  (smartparens-global-mode +1)
   (sp-use-smartparens-bindings))
 
 ;; Make HTTP requests inside Emacs
-(use-package restclient)
+(use-package restclient
+  :commands restclient-mode)
 
 ;; Git + Emacs = <3
 (use-package magit
-  :commands
-  magit-status
+  :commands magit-status
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 ;; LSP client
 (use-package lsp-mode
-  :init
-  (setenv "LSP_USE_PLISTS" "true")
-  (setq lsp-keymap-prefix "C-c l")
+  :commands (lsp lsp-deferred)
   :hook
   (lsp-mode . lsp-enable-which-key-integration)
   :config
+  (setenv "LSP_USE_PLISTS" "true")
+  (setq lsp-keymap-prefix "C-c l")
   (setq lsp-log-io nil)
   (setq lsp-restart 'auto-restart)
   (setq lsp-enable-symbol-highlighting nil)
@@ -394,9 +415,7 @@
   (setq lsp-enable-indentation nil)
   ;; Use corfu as completion
   (setq lsp-completion-provider :none)
-  :custom
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
-  :commands (lsp lsp-deferred))
+  (setq lsp-rust-analyzer-cargo-watch-command "clippy"))
 
 ;; LSP + Treemacs integration
 (use-package lsp-treemacs
@@ -409,9 +428,11 @@
   ((clojure-mode . smartparens-strict-mode)
    (clojure-mode . lsp-deferred))
   :config
+  (message "Clojure mode is loaded!")
   (setq clojure-align-forms-automatically t))
 
 (use-package cider
+  :commands cider-jack-in
   :bind
   ("C-c M-b" . cider-repl-clear-buffer)
   :config
@@ -460,9 +481,13 @@
   :hook
   (elixir-mode . lsp-deferred))
 
-(use-package graphql-mode)
+(use-package graphql-mode
+  :defer t
+  :commands graphql-mode)
 
-(use-package yaml-mode)
+(use-package yaml-mode
+  :defer t
+  :commands yaml-mode)
 
 ;; Start emacs server to enable emacsclient
 (if (and (fboundp 'server-running-p)
