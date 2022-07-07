@@ -125,6 +125,7 @@
    ("C-c C-j" . consult-imenu)
    ("C-c p s s" . consult-ripgrep)
    ("M-g g" . consult-goto-line)
+   ("M-g M-g" . consult-goto-line)
    :map minibuffer-local-map
    ("C-h" . consult-history))
   :hook
