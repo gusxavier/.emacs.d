@@ -20,6 +20,12 @@ Add hook to measure Emacs startup time so we can be constantly improving it.
 
   (add-hook 'emacs-startup-hook #'my/display-startup-time)
 
+  ;; Make GC threshold high to startup faster
+  (setq gc-cons-threshold (* 50 1000 1000))
+
+  ;; Increase the number of bytes read from subprocesses
+  (setq read-process-output-max (* 1024 1024))
+
 #+end_src
 
 
@@ -87,22 +93,6 @@ This configuration uses `use-package` for managing dependencies so we need to in
 * Core
 
 Below we have some general configuration that forms the base for Emacs usage.
-
-
-** Performance tunning
-
-#+begin_src emacs-lisp
-
-  ;; Avoid slowness with some fonts
-  (setq inhibit-compacting-font-caches t)
-
-  ;; Make GC run less often
-  (setq gc-cons-threshold 100000000)
-
-  ;; Increase the number of bytes read from subprocesses
-  (setq read-process-output-max (* 1024 1024))
-
-#+end_src
 
 
 ** Keep folders clean
@@ -378,9 +368,20 @@ I mainly use the PragmataPro font with enabled ligatures.
                       :height my/default-font-height
                       :weight 'regular)
 
+  ;; Function to set the mode-line font a little smaller
+  ;; Will be used in the configuration below
+  (defun my/set-modeline-font-size ()
+    (set-face-attribute 'mode-line nil
+                        :height (- my/default-font-height 30))
+    (set-face-attribute 'mode-line-inactive nil
+                        :height (- my/default-font-height 30)))
+
   ;; Set encoding to UTF-8
   (set-language-environment "UTF-8")
   (set-default-coding-systems 'utf-8-unix)
+
+  ;; Avoid slowness with some fonts
+  (setq inhibit-compacting-font-caches t)
 
 #+end_src
 
@@ -491,11 +492,11 @@ I mainly use one of many nice themes from [[https://github.com/doomemacs/themes#
 #+begin_src emacs-lisp
 
   ;; Doom-themes for the win!
-  (use-package doom-themes
-    :config
-    (load-theme 'doom-nord t)
-    ;; Add padding to the modeline
-    (setq doom-themes-padded-modeline t))
+  ;; (use-package doom-themes
+  ;;   :config
+  ;;   (load-theme 'doom-one t)
+  ;;   Add padding to the modeline
+  ;;   (setq doom-themes-padded-modeline t))
 
 #+end_src
 
@@ -504,17 +505,22 @@ I also like to use [[https://github.com/protesilaos/modus-themes][modus-themes]]
 #+begin_src emacs-lisp
 
   ;; Uncomment to enable modus-themes
-  ;; (setq modus-themes-mode-line '(accented borderless)
-  ;;       modus-themes-region '(bg-only)
-  ;;       modus-themes-bold-constructs t
-  ;;       modus-themes-italic-constructs t
-  ;;       modus-themes-paren-match '(bold intense)
-  ;;       modus-themes-prompts '(intense)
-  ;;       modus-themes-tabs-accented t
-  ;;       modus-themes-subtle-line-numbers t
-  ;;       modus-themes-lang-checkers '(background faint))
+  (setq modus-themes-mode-line '(accented borderless)
+        modus-themes-region '(bg-only accented)
+        modus-themes-italic-constructs t
+        modus-themes-paren-match '(intense)
+        modus-themes-subtle-line-numbers t
+        modus-themes-org-blocks 'gray-background)
 
-  ;; (load-theme 'modus-vivendi t)
+  (defun my/modus-themes-toggle ()
+    (interactive)
+    (modus-themes-toggle)
+    (my/set-modeline-font-size))
+
+  ;; Switch between dark and light themes
+  (global-set-key (kbd "<f5>") 'my/modus-themes-toggle)
+
+  (load-theme 'modus-operandi t)
 
 #+end_src
 
@@ -530,11 +536,7 @@ For the modeline, I mainly use doom-modeline
     :init
     (doom-modeline-mode 1)
     :config
-    ;; Set the mode-line font a little smaller
-    (set-face-attribute 'mode-line nil
-                        :height (- my/default-font-height 20))
-    (set-face-attribute 'mode-line-inactive nil
-                        :height (- my/default-font-height 20)))
+    (my/set-modeline-font-size))
 
 #+end_src
 
@@ -584,9 +586,11 @@ For the modeline, I mainly use doom-modeline
     :commands (lsp lsp-deferred)
     :hook
     (lsp-mode . lsp-enable-which-key-integration)
-    :config
+    :init
     (setenv "LSP_USE_PLISTS" "true")
     (setq lsp-keymap-prefix "C-c l")
+    (setq lsp-use-plists t)
+    :config
     (setq lsp-log-io nil)
     (setq lsp-restart 'auto-restart)
     (setq lsp-enable-symbol-highlighting nil)
@@ -599,7 +603,6 @@ For the modeline, I mainly use doom-modeline
     (setq lsp-enable-imenu nil)
     (setq lsp-enable-snippet nil)
     (setq lsp-lens-enable nil)
-    (setq lsp-use-plists t)
     (setq lsp-enable-indentation nil)
     ;; Use corfu as completion
     (setq lsp-completion-provider :none)
@@ -628,10 +631,7 @@ For the modeline, I mainly use doom-modeline
   (use-package clojure-mode
     :hook
     ((clojure-mode . smartparens-strict-mode)
-     (clojure-mode . lsp-deferred))
-    :config
-    (message "Clojure mode is loaded!")
-    (setq clojure-align-forms-automatically t))
+     (clojure-mode . lsp-deferred)))
 
   (use-package cider
     :commands cider-jack-in
@@ -641,8 +641,7 @@ For the modeline, I mainly use doom-modeline
     (unbind-key "M-." cider-mode-map)
     (unbind-key "M-," cider-mode-map)
     (setq cider-prompt-for-symbol nil
-          cider-test-defining-forms '("deftest" "defspec" "defflow" "init-flow")
-          cider-test-show-report-on-success t))
+          cider-test-defining-forms '("deftest" "defspec" "defflow" "init-flow")))
 
   ;; Better visualization of test results
   (defun my/cider-ansi-color-string-p (value)
@@ -738,7 +737,7 @@ For the modeline, I mainly use doom-modeline
 
 * Emacs server
 
-If everything goes correctly, for last, start emacs server so we can use emacslient to quickly edit files.
+If everything goes correctly, start emacs server so we can use emacslient to quickly edit files.
 
 #+begin_src emacs-lisp
 
@@ -746,6 +745,17 @@ If everything goes correctly, for last, start emacs server so we can use emacsli
   (if (and (fboundp 'server-running-p)
            (not (server-running-p)))
       (server-start))
+
+#+end_src
+
+* Final configurations
+
+Set some final configuration values after startup so we can use Emacs at it's best.
+
+#+begin_src emacs-lisp
+
+  ;; Bring GC threshold back to a more reasonable amount
+  (setq gc-cons-threshold (* 10 1000 1000))
 
   (provide 'init)
 

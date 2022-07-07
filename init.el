@@ -6,6 +6,12 @@
 
 (add-hook 'emacs-startup-hook #'my/display-startup-time)
 
+;; Make GC threshold high to startup faster
+(setq gc-cons-threshold (* 50 1000 1000))
+
+;; Increase the number of bytes read from subprocesses
+(setq read-process-output-max (* 1024 1024))
+
 ;;; package --- Summary
 
 ;;; Commentary:
@@ -48,15 +54,6 @@
 
 ;; Load custom or local code packages
 (add-to-list 'load-path (expand-file-name "custom/" user-emacs-directory))
-
-;; Avoid slowness with some fonts
-(setq inhibit-compacting-font-caches t)
-
-;; Make GC run less often
-(setq gc-cons-threshold 100000000)
-
-;; Increase the number of bytes read from subprocesses
-(setq read-process-output-max (* 1024 1024))
 
 (use-package no-littering)
 
@@ -264,9 +261,20 @@
                     :height my/default-font-height
                     :weight 'regular)
 
+;; Function to set the mode-line font a little smaller
+;; Will be used in the configuration below
+(defun my/set-modeline-font-size ()
+  (set-face-attribute 'mode-line nil
+                      :height (- my/default-font-height 30))
+  (set-face-attribute 'mode-line-inactive nil
+                      :height (- my/default-font-height 30)))
+
 ;; Set encoding to UTF-8
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8-unix)
+
+;; Avoid slowness with some fonts
+(setq inhibit-compacting-font-caches t)
 
 ;; Enable PragmataPro font ligatures
 (require 'pragmatapro-lig)
@@ -342,35 +350,36 @@
   (prog-mode . rainbow-delimiters-mode))
 
 ;; Doom-themes for the win!
-(use-package doom-themes
-  :config
-  (load-theme 'doom-nord t)
-  ;; Add padding to the modeline
-  (setq doom-themes-padded-modeline t))
+;; (use-package doom-themes
+;;   :config
+;;   (load-theme 'doom-one t)
+;;   Add padding to the modeline
+;;   (setq doom-themes-padded-modeline t))
 
 ;; Uncomment to enable modus-themes
-;; (setq modus-themes-mode-line '(accented borderless)
-;;       modus-themes-region '(bg-only)
-;;       modus-themes-bold-constructs t
-;;       modus-themes-italic-constructs t
-;;       modus-themes-paren-match '(bold intense)
-;;       modus-themes-prompts '(intense)
-;;       modus-themes-tabs-accented t
-;;       modus-themes-subtle-line-numbers t
-;;       modus-themes-lang-checkers '(background faint))
+(setq modus-themes-mode-line '(accented borderless)
+      modus-themes-region '(bg-only accented)
+      modus-themes-italic-constructs t
+      modus-themes-paren-match '(intense)
+      modus-themes-subtle-line-numbers t
+      modus-themes-org-blocks 'gray-background)
 
-;; (load-theme 'modus-vivendi t)
+(defun my/modus-themes-toggle ()
+  (interactive)
+  (modus-themes-toggle)
+  (my/set-modeline-font-size))
+
+;; Switch between dark and light themes
+(global-set-key (kbd "<f5>") 'my/modus-themes-toggle)
+
+(load-theme 'modus-operandi t)
 
 ;; Better modeline
 (use-package doom-modeline
   :init
   (doom-modeline-mode 1)
   :config
-  ;; Set the mode-line font a little smaller
-  (set-face-attribute 'mode-line nil
-                      :height (- my/default-font-height 20))
-  (set-face-attribute 'mode-line-inactive nil
-                      :height (- my/default-font-height 20)))
+  (my/set-modeline-font-size))
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
@@ -396,9 +405,11 @@
   :commands (lsp lsp-deferred)
   :hook
   (lsp-mode . lsp-enable-which-key-integration)
-  :config
+  :init
   (setenv "LSP_USE_PLISTS" "true")
   (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-use-plists t)
+  :config
   (setq lsp-log-io nil)
   (setq lsp-restart 'auto-restart)
   (setq lsp-enable-symbol-highlighting nil)
@@ -411,7 +422,6 @@
   (setq lsp-enable-imenu nil)
   (setq lsp-enable-snippet nil)
   (setq lsp-lens-enable nil)
-  (setq lsp-use-plists t)
   (setq lsp-enable-indentation nil)
   ;; Use corfu as completion
   (setq lsp-completion-provider :none)
@@ -426,10 +436,7 @@
 (use-package clojure-mode
   :hook
   ((clojure-mode . smartparens-strict-mode)
-   (clojure-mode . lsp-deferred))
-  :config
-  (message "Clojure mode is loaded!")
-  (setq clojure-align-forms-automatically t))
+   (clojure-mode . lsp-deferred)))
 
 (use-package cider
   :commands cider-jack-in
@@ -439,8 +446,7 @@
   (unbind-key "M-." cider-mode-map)
   (unbind-key "M-," cider-mode-map)
   (setq cider-prompt-for-symbol nil
-        cider-test-defining-forms '("deftest" "defspec" "defflow" "init-flow")
-        cider-test-show-report-on-success t))
+        cider-test-defining-forms '("deftest" "defspec" "defflow" "init-flow")))
 
 ;; Better visualization of test results
 (defun my/cider-ansi-color-string-p (value)
@@ -493,6 +499,9 @@
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
     (server-start))
+
+;; Bring GC threshold back to a more reasonable amount
+(setq gc-cons-threshold (* 10 1000 1000))
 
 (provide 'init)
 
