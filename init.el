@@ -1,16 +1,4 @@
-(defun my/display-startup-time ()
-  (message "Emacs loaded in %s with %d garbage collections"
-           (format "%.2f seconds"
-                   (float-time (time-subtract after-init-time before-init-time)))
-           gcs-done))
-
-(add-hook 'emacs-startup-hook #'my/display-startup-time)
-
-;; Make GC threshold high to startup faster
-(setq gc-cons-threshold (* 50 1000 1000))
-
-;; Increase the number of bytes read from subprocesses
-(setq read-process-output-max (* 1024 1024))
+;; -*- lexical-binding: t; -*-
 
 ;;; package --- Summary
 
@@ -20,6 +8,22 @@
 
 ;; NOTE: This file was generated from Emacs.org. Do not edit it by hand
 ;; and update Emacs.org instead.
+
+;; Display the time it took to make the editor usable
+(defun my/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections"
+           (format "%.2f seconds"
+                   (float-time (time-subtract after-init-time before-init-time)))
+           gcs-done))
+(add-hook 'emacs-startup-hook #'my/display-startup-time)
+
+;; Make GC threshold high to startup faster
+(setq gc-cons-threshold (* 50 1000 1000))
+
+;; Increase the number of bytes read from subprocesses
+(setq read-process-output-max (* 1024 1024))
+
+;; Native comp config
 (when (and (fboundp 'native-comp-available-p)
            (native-comp-available-p))
   (progn
@@ -29,7 +33,6 @@
     (setq package-native-compile t)))
 
 (require 'package)
-
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("org" . "https://orgmode.org/elpa/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
@@ -45,7 +48,8 @@
 (require 'use-package)
 
 ;; Always install missing packages
-(setq use-package-always-ensure t)
+(setq use-package-always-ensure t
+      use-package-verbose t)
 
 ;; Avoid writing package-selected-packages on init.el
 (defun package--save-selected-packages (&rest _opt)
@@ -55,11 +59,19 @@
 ;; Load custom or local code packages
 (add-to-list 'load-path (expand-file-name "custom/" user-emacs-directory))
 
+;; Keep folders clean
 (use-package no-littering)
 
 ;; Store auto save files in the no-littering specific dir
 (setq auto-save-file-name-transforms
       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
+;; Diminish modes on modeline
+(use-package diminish
+  :demand t
+  :init
+  (diminish 'visual-line-mode)
+  (diminish 'eldoc-mode))
 
 ;; Better comments
 (use-package evil-nerd-commenter
@@ -86,9 +98,24 @@
 
 ;; Show keybindings suggestions
 (use-package which-key
+  :diminish
   :defer 0
   :config
   (which-key-mode +1))
+
+(use-package helpful
+  :commands
+  (helpful-callable
+   helpful-variable
+   helpful-command
+   helpful-key helpful-at-point)
+  :bind
+  (([remap describe-function] . helpful-callable)
+   ([remap describe-variable] . helpful-variable)
+   ([remap describe-key] . helpful-key)
+   ([remap describe-command] . helpful-command)
+   ("C-h p" . #'helpful-at-point)
+   ("C-h F" . #'helpful-function)))
 
 ;; Reload buffers on disk change
 (global-auto-revert-mode t)
@@ -116,6 +143,9 @@
 ;; Keybinding to open config file
 (global-set-key (kbd "<f9>") 'my/load-config-file)
 
+;; Never left an open bracket
+(add-hook 'text-mode-hook #'electric-pair-mode)
+
 (use-package corfu
   :after orderless
   :init
@@ -123,21 +153,26 @@
   :config
   (setq corfu-auto t)
   (setq corfu-cycle t)
-  (setq corfu-auto-prefix 0))
+  (setq corfu-auto-prefix 1))
 
 ;; Better completion style
 (use-package orderless
   :init
-  (setq completion-styles '(orderless basic))
-  (setq completion-category-overrides '((file (styles basic partial-completion)))))
+  (setq completion-styles '(orderless))
+  (setq completion-category-defaults nil)
+  (setq completion-category-overrides '((file (styles basic partial-completion))))
+  (setq orderless-matching-styles '(orderless-literal orderless-prefixes orderless-initialism orderless-regexp)))
 
 ;; Completion framework
 (use-package vertico
   :init
-  (vertico-mode))
+  (vertico-mode 1)
+  :config
+  (setq vertico-cycle t))
 
 ;; Improve completing-read
 (use-package consult
+  :demand t
   :after vertico
   :bind
   (("C-s" . consult-line)
@@ -146,14 +181,31 @@
    ("C-c p s s" . consult-ripgrep)
    ("M-g g" . consult-goto-line)
    ("M-g M-g" . consult-goto-line)
+   ("C-x p b" . consult-project-buffer)
+   ("M-y" . consult-yank-pop)
+   ("M-g f". consult-flycheck)
+   ("<help> a" . consult-apropos)
+   ("M-g o" . consult-org-heading)
    :map minibuffer-local-map
-   ("C-h" . consult-history))
+   ("M-s" . consult-history)
+   ("M-r" . consult-history)
+   :map isearch-mode-map
+   ("M-e" . consult-isearch-history)
+   ("M-s e" . consult-isearch-history)
+   ("M-s l" . consult-line)
+   ("M-s L" . consult-line-multi))
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
-  :config
+  :init
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
   (advice-add #'register-preview :override #'consult-register-window)
+  ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref))
 
@@ -178,27 +230,30 @@
 
 ;; Annotations in the completion framework
 (use-package marginalia
-  :after vertico
   :bind (("M-A" . marginalia-cycle)
          :map minibuffer-local-map
          ("M-A" . marginalia-cycle))
   :init
-  (marginalia-mode))
+  (marginalia-mode)
+  :config
+  (setq marginalia-max-relative-age 0)
+  (setq marginalia-align 'right)
+  (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
 
 ;; Use tab to open autocomplete
 (setq tab-always-indent 'complete)
 
 ;; Highlight errors on buffer
 (use-package flycheck
+  :diminish
   :hook (prog-mode . flycheck-mode))
+
+(use-package consult-flycheck
+  :after (consult flycheck))
 
 ;; Terminal inside emacs
 (use-package vterm
   :commands vterm)
-
-;; Use same keybindings as projectile
-(global-set-key (kbd "C-c p p") 'project-switch-project)
-(global-set-key (kbd "C-c p f") 'project-find-file)
 
 (defvar my/default-font "PragmataPro Liga")
 
@@ -226,10 +281,20 @@
 ;; Enable PragmataPro font ligatures
 (require 'pragmatapro-lig)
 (pragmatapro-lig-global-mode)
+(diminish 'pragmatapro-lig-mode)
 
 ;; Run M-x all-the-icons-install-fonts in the first time
-;; (use-package all-the-icons
-;;   :if (display-graphic-p))
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+;; Show icons in completion
+;; (use-package all-the-icons-completion
+;;   :after
+;;   (marginalia all-the-icons)
+;;   :hook
+;;   (marginalia-mode . all-the-icons-completion-marginalia-setup)
+;;   :init
+;;   (all-the-icons-completion-mode))
 
 ;; Remove scroll bar
 (scroll-bar-mode -1)
@@ -285,38 +350,27 @@
 ;; Set the cursor type as a thin vertical bar
 (setq-default cursor-type 'bar)
 
-;; Enable moving to buffers using arrow keys
-;; [TODO]: Find a set of keybindings that do not
-;; conflict with org-mode
-;; (windmove-default-keybindings)
-
 ;; File tree sidebar
 (use-package treemacs
+  :commands treemacs
   :bind
-  ("<f8>" . treemacs))
+  ("<f8>" . treemacs)
+  :config
+  (setq treemacs-text-scale -0.5))
+
+(use-package treemacs-all-the-icons
+  :after (treemacs all-the-icons)
+  :config
+  (treemacs-load-all-the-icons-with-workaround-font my/default-font))
 
 ;; Show each delimiter (parenthesis, brackets, etc) with different colors
 (use-package rainbow-delimiters
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
-(defvar favorite-themes '(doom-city-lights
-                          doom-dark+
-                          doom-dracula
-                          doom-material
-                          doom-monokai-pro
-                          doom-nord
-                          doom-one
-                          doom-opera))
-
-(defun my/get-random-theme ()
-  (nth (random (length favorite-themes)) favorite-themes))
-
-;; Doom-themes for the win!
-(use-package doom-themes
-  :config
-  ;; (load-theme 'doom-opera-light t)
-  (load-theme (my/get-random-theme) t))
+;; (use-package doom-themes
+;;   :config
+;;   (load-theme 'doom-monokai-pro t))
 
 ;; (use-package modus-themes
 ;;   :bind
@@ -330,31 +384,60 @@
 ;;         modus-themes-org-blocks 'gray-background)
 ;;   (load-theme 'modus-vivendi t))
 
-;; Better modeline
-(use-package doom-modeline
-  :init
-  (doom-modeline-mode 1)
-  (setq doom-modeline-height 32))
+;; (use-package spacemacs-theme
+;;   :defer t
+;;   :init
+;;   (load-theme 'spacemacs-dark t))
 
-(use-package centaur-tabs
-  :demand
-  :init
-  (setq centaur-tabs-style "bar")
-  (setq centaur-tabs-set-icons t)
-  (setq centaur-tabs-set-bar 'over)
-  (setq centaur-tabs-set-modified-marker t)
+(use-package mindre-theme
+  :custom
+  (mindre-use-more-bold nil)
+  (mindre-use-faded-lisp-parens nil)
+  :custom-face
+  (mindre-faded ((t (:foreground "#585c60"))))
   :config
-  (centaur-tabs-mode 1)
-  (centaur-tabs-headline-match)
-  :bind
-  ("C-<prior>" . centaur-tabs-backward)
-  ("C-<next>" . centaur-tabs-forward))
+  (load-theme 'mindre t)
+  ;; Gray modeline
+  ;; (set-face-attribute 'mode-line nil
+  ;;                     :background "#2b2b2b" :foreground "#eceff1"
+  ;;                     :height (- my/default-font-height 20)
+  ;;                     :box '(:line-width 6 :color "#2b2b2b"))
+  ;; (set-face-attribute 'mode-line-inactive nil
+  ;;                     :background "#666666" :foreground "#eceff1"
+  ;;                     :height (- my/default-font-height 20)
+  ;;                     :box '(:line-width 6 :color "#666666"))
+
+  ;; Purple modeline
+  (set-face-attribute 'mode-line nil
+                      :background "#5c3e99" :foreground "#eceff1"
+                      :height (- my/default-font-height 20)
+                      :box '(:line-width 6 :color "#5c3e99"))
+  (set-face-attribute 'mode-line-inactive nil
+                      :background "#a991cf" :foreground "#eceff1"
+                      :height (- my/default-font-height 20)
+                      :box '(:line-width 6 :color "#a991cf")))
+
+;; Better modeline
+;; (use-package doom-modeline
+;;   :init
+;;   (doom-modeline-mode 1)
+;;   :config
+;;   (setq doom-modeline-height 1)
+;;   (custom-set-faces
+;;    '(mode-line ((t (:height 0.9))))
+;;    '(mode-line-active ((t (:height 0.9))))
+;;    '(mode-line-inactive ((t (:height 0.9))))))
+
+;; (use-package spaceline
+;;   :init
+;;   (spaceline-spacemacs-theme)
+;;   (require 'spaceline-config))
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
+  :diminish
   :hook
-  ((prog-mode . smartparens-strict-mode)
-   (org-mode . smartparens-strict-mode))
+  (prog-mode . smartparens-strict-mode)
   :config
   (require 'smartparens-config)
   (sp-use-smartparens-bindings))
@@ -397,17 +480,16 @@
 (use-package lsp-treemacs
   :after lsp)
 
-(add-hook #'emacs-lisp-hook 'smartparens-strict-mode)
-
 (use-package clojure-mode
   :hook
-  ((clojure-mode . smartparens-strict-mode)
-   (clojure-mode . lsp-deferred)))
+  (clojure-mode . lsp-deferred))
 
 (use-package cider
   :commands cider-jack-in
   :bind
   ("C-c M-b" . cider-repl-clear-buffer)
+  :hook
+  (cider-repl-mode . smartparens-strict-mode)
   :config
   (unbind-key "M-." cider-mode-map)
   (unbind-key "M-," cider-mode-map)
@@ -464,11 +546,11 @@
 (defun my/org-mode-setup ()
   "Custom 'org-mode' setup."
   (org-indent-mode)
+  (diminish 'org-indent-mode)
   (visual-line-mode 1))
 
 (use-package org
   :pin org
-
   :commands (org-capture org-agenda)
 
   :hook
@@ -509,6 +591,15 @@
             (lambda ()
               (add-hook 'after-save-hook #'my/org-babel-tangle-config))))
 
+(defun my/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :diminish
+  :hook (org-mode . my/org-mode-visual-fill))
+
 (use-package org-bullets
   :after org
   :hook
@@ -520,11 +611,54 @@
   :bind
   (("C-c n l" . org-roam-buffer-toggle)
    ("C-c n f" . org-roam-node-find)
-   ("C-c n i" . org-roam-node-insert))
+   ("C-c n i" . org-roam-node-insert)
+   ("C-c n I" . my/org-roam-node-insert-imediate)
+   ("C-c n b" . my/org-roam-capture-inbox))
+  :bind-keymap
+  ("C-c n d" . org-roam-dailies-map)
   :config
   (setq org-roam-directory "~/dev/org-roam")
   (setq org-roam-completion-everywhere t)
+  ;; Enable marginalia tags
+  (setq org-roam-node-display-template
+        (concat "${title:80} " (propertize "${tags:20}" 'face 'org-tag))
+        org-roam-node-annotation-function
+        (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
+  (require 'org-roam-dailies)
+  (setq org-roam-dailies-directory "Journal/")
+  (setq org-roam-capture-templates
+        '(("d" "default" plain
+           "%?"
+           :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+           :unnarrowed t)
+          ("p" "project" plain
+           (file "~/dev/org-roam/Templates/ProjectTemplate.org")
+           :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: Project")
+           :unnarrowed t)))
   (org-roam-setup))
+
+(defun my/org-roam-node-insert-imediate (arg &rest args)
+  (interactive "P")
+  (let ((args (cons arg args))
+        (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+                                                  '(:immediate-finish t)))))
+    (apply #'org-roam-node-insert args)))
+
+(defun my/org-roam-capture-inbox ()
+  (interactive)
+  (org-roam-capture- :node (org-roam-node-create)
+                     :templates '(("i" "inbox" plain "* TODO %?"
+                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n\n\n")))))
+
+(use-package org-roam-ui
+  :diminish
+  :after org-roam
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
 
 ;; Start emacs server to enable emacsclient
 (if (and (fboundp 'server-running-p)
