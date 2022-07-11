@@ -84,8 +84,7 @@ This configuration uses `use-package` for managing dependencies so we need to in
   (require 'use-package)
 
   ;; Always install missing packages
-  (setq use-package-always-ensure t
-        use-package-verbose t)
+  (setq use-package-always-ensure t)
 
   ;; Avoid writing package-selected-packages on init.el
   (defun package--save-selected-packages (&rest _opt)
@@ -768,25 +767,31 @@ Some general display configuration for a better overall experience.
   (use-package org
     :pin org
     :commands (org-capture org-agenda)
-
     :hook
     (org-mode . my/org-mode-setup)
-
     :config
+    ;; UI IMPROVEMENTS
     (setq org-ellipsis " ▾")
     (setq org-hide-emphasis-markers t)
-    (setq org-todo-keywords
-          '((sequence "TODO(t)" "NEXT(n)" "REVIEW(r)" "|" "DONE(d!)")))
-
-    (setq org-agenda-start-with-log-mode t)
-
-    (setq org-log-done 'time)
-
     ;; Replace list hyphen with dot
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
                                (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    ;; Make org link open file in the same buffer
+    (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
 
+    ;; ORG-AGENDA
+    (defvar org-files-dir "~/dev/org-files")
+
+    (setq org-agenda-files (list (expand-file-name "Tasks.org" org-files-dir)
+                                 (expand-file-name "Birthdays.org" org-files-dir)))
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "DOING(d)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
+    (setq org-agenda-start-with-log-mode t)
+    (setq org-log-done 'time)
+    (setq org-log-into-drawer t)
+
+    ;; ORG-BABEL
     (require 'org-tempo)
     (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
     (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
@@ -805,7 +810,7 @@ Some general display configuration for a better overall experience.
     ;; Automatically tangle our Emacs.org config file when we save it
     (add-hook 'org-mode-hook
               (lambda ()
-                (add-hook 'after-save-hook #'my/org-babel-tangle-config))))
+                (add-hook 'after-save-hook #'my/org-babel-tangle-config)))))
 
   (defun my/org-mode-visual-fill ()
     (setq visual-fill-column-width 100
@@ -847,14 +852,14 @@ Some general display configuration for a better overall experience.
           org-roam-node-annotation-function
           (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
     (require 'org-roam-dailies)
-    (setq org-roam-dailies-directory "Journal/")
+    (setq org-roam-dailies-directory "Dailies/")
     (setq org-roam-capture-templates
           '(("d" "default" plain
              "%?"
              :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
              :unnarrowed t)
             ("p" "project" plain
-             (file "~/dev/org-roam/Templates/ProjectTemplate.org")
+             (file (expand-file-name "Templates/ProjectTemplate.org" org-roam-directory))
              :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                                 "#+title: ${title}\n#+filetags: Project")
              :unnarrowed t)))
