@@ -594,7 +594,7 @@
   ;; Automatically tangle our Emacs.org config file when we save it
   (add-hook 'org-mode-hook
             (lambda ()
-              (add-hook 'after-save-hook #'my/org-babel-tangle-config)))))
+              (add-hook 'after-save-hook #'my/org-babel-tangle-config))))
 
 (defun my/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
