@@ -786,7 +786,7 @@ Some general display configuration for a better overall experience.
     (setq org-agenda-files (list (expand-file-name "Tasks.org" org-files-dir)
                                  (expand-file-name "Birthdays.org" org-files-dir)))
     (setq org-todo-keywords
-          '((sequence "TODO(t)" "DOING(d)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
+          '((sequence "TODO(t)" "DOING(i)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
     (setq org-agenda-start-with-log-mode t)
     (setq org-log-done 'time)
     (setq org-log-into-drawer t)
