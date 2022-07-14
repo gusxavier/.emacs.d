@@ -80,10 +80,10 @@
 
 ;; Load env variables from PATH inside Emacs
 ;; P.S: only needed for Mac OS
-(when (eq system-type 'darwin)
-  (use-package exec-path-from-shell
-    :config
-    (exec-path-from-shell-initialize)))
+(use-package exec-path-from-shell
+  :if (memq window-system '(mac ns))
+  :config
+  (exec-path-from-shell-initialize))
 
 ;; Select regions by expanding chunks of text
 (use-package expand-region
@@ -257,7 +257,7 @@
 (defvar my/default-font "PragmataPro Liga")
 
 ;; Set a different font size between MacOS and Linux
-(defvar my/default-font-height (if (eq system-type 'darwin) 220 160))
+(defvar my/default-font-height (if (eq system-type 'darwin) 200 160))
 
 (set-face-attribute 'default nil
                     :family my/default-font
@@ -281,6 +281,11 @@
 (require 'pragmatapro-lig)
 (pragmatapro-lig-global-mode)
 (diminish 'pragmatapro-lig-mode)
+
+;; Enable emoji support
+(use-package emojify
+  :hook
+  (after-init . global-emojify-mode))
 
 ;; Run M-x all-the-icons-install-fonts in the first time
 (use-package all-the-icons
@@ -369,7 +374,8 @@
 
 ;; (use-package doom-themes
 ;;   :config
-;;   (load-theme 'doom-monokai-pro t))
+;;   (load-theme 'doom-zenburn t)
+;;   (doom-themes-org-config))
 
 ;; (use-package modus-themes
 ;;   :bind
@@ -383,38 +389,27 @@
 ;;         modus-themes-org-blocks 'gray-background)
 ;;   (load-theme 'modus-vivendi t))
 
-;; (use-package spacemacs-theme
-;;   :defer t
-;;   :init
-;;   (load-theme 'spacemacs-dark t))
+(use-package spacemacs-theme
+  :defer t
+  :init
+  (load-theme 'spacemacs-dark t))
 
-(use-package mindre-theme
-  :custom
-  (mindre-use-more-bold nil)
-  (mindre-use-faded-lisp-parens nil)
-  :custom-face
-  (mindre-faded ((t (:foreground "#585c60"))))
-  :config
-  (load-theme 'mindre t)
-  ;; Gray modeline
-  ;; (set-face-attribute 'mode-line nil
-  ;;                     :background "#2b2b2b" :foreground "#eceff1"
-  ;;                     :height (- my/default-font-height 20)
-  ;;                     :box '(:line-width 6 :color "#2b2b2b"))
-  ;; (set-face-attribute 'mode-line-inactive nil
-  ;;                     :background "#666666" :foreground "#eceff1"
-  ;;                     :height (- my/default-font-height 20)
-  ;;                     :box '(:line-width 6 :color "#666666"))
-
-  ;; Purple modeline
-  (set-face-attribute 'mode-line nil
-                      :background "#5c3e99" :foreground "#eceff1"
-                      :height (- my/default-font-height 20)
-                      :box '(:line-width 6 :color "#5c3e99"))
-  (set-face-attribute 'mode-line-inactive nil
-                      :background "#a991cf" :foreground "#eceff1"
-                      :height (- my/default-font-height 20)
-                      :box '(:line-width 6 :color "#a991cf")))
+;; (use-package mindre-theme
+;;   :custom
+;;   (mindre-use-more-bold nil)
+;;   (mindre-use-faded-lisp-parens nil)
+;;   :custom-face
+;;   (mindre-faded ((t (:foreground "#585c60"))))
+;;   :config
+;;   (load-theme 'mindre t)
+;;   (set-face-attribute 'mode-line nil
+;;                       :background "#5c3e99" :foreground "#eceff1"
+;;                       :height (- my/default-font-height 20)
+;;                       :box '(:line-width 6 :color "#5c3e99"))
+;;   (set-face-attribute 'mode-line-inactive nil
+;;                       :background "#a991cf" :foreground "#eceff1"
+;;                       :height (- my/default-font-height 20)
+;;                       :box '(:line-width 6 :color "#a991cf")))
 
 ;; Better modeline
 ;; (use-package doom-modeline
@@ -427,10 +422,22 @@
 ;;    '(mode-line-active ((t (:height 0.9))))
 ;;    '(mode-line-inactive ((t (:height 0.9))))))
 
-;; (use-package spaceline
-;;   :init
-;;   (spaceline-spacemacs-theme)
-;;   (require 'spaceline-config))
+(use-package spaceline
+  :init
+  (require 'spaceline-config)
+  (spaceline-spacemacs-theme))
+
+;; (defun my/config-default-modeline ()
+;;   (let ((bg-color (face-attribute 'mode-line :background))
+;;         (inactive-bg-color (face-attribute 'mode-line-inactive :background)))
+;;   (set-face-attribute 'mode-line nil
+;;                       :height (- my/default-font-height 40)
+;;                       :box `(:line-width 6 :color ,bg-color))
+;;   (set-face-attribute 'mode-line-inactive nil
+;;                       :height (- my/default-font-height 40)
+;;                       :box `(:line-width 6 :color ,inactive-bg-color))))
+
+;; (my/config-default-modeline)
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
@@ -483,17 +490,28 @@
   :hook
   (clojure-mode . lsp-deferred))
 
+(defun my/cider-mode-hook ()
+  (smartparens-strict-mode)
+  ;; Use CIDER completion when the REPL is on
+  (setq-local lsp-enable-completion-at-point nil)
+  ;; Temporary fix to use cider completions with corfu
+  (setq-local completion-styles '(basic)))
+
 (use-package cider
   :commands cider-jack-in
   :bind
   ("C-c M-b" . cider-repl-clear-buffer)
   :hook
-  (cider-repl-mode . smartparens-strict-mode)
+  (cider-mode . my/cider-mode-hook)
   :config
   (unbind-key "M-." cider-mode-map)
   (unbind-key "M-," cider-mode-map)
-  (setq cider-prompt-for-symbol nil
-        cider-test-defining-forms '("deftest" "defspec" "defflow" "init-flow")))
+  :custom
+  (cider-prompt-for-symbol nil)
+  (cider-test-defining-forms '("deftest"
+                               "defspec"
+                               "defflow"
+                               "init-flow")))
 
 ;; Better visualization of test results
 (defun my/cider-ansi-color-string-p (value)
@@ -570,7 +588,7 @@
   (setq org-agenda-files (list (expand-file-name "Tasks.org" org-files-dir)
                                (expand-file-name "Birthdays.org" org-files-dir)))
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "DOING(d)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
+        '((sequence "TODO(t)" "DOING(i)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)

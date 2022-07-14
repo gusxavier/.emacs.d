@@ -341,7 +341,6 @@ Before installing and compiling vterm, check the dependencies at the [[https://g
 
 #+end_src
 
-
 * UI
 
 
@@ -354,7 +353,7 @@ I mainly use the PragmataPro font with enabled ligatures.
   (defvar my/default-font "PragmataPro Liga")
 
   ;; Set a different font size between MacOS and Linux
-  (defvar my/default-font-height (if (eq system-type 'darwin) 220 160))
+  (defvar my/default-font-height (if (eq system-type 'darwin) 200 160))
 
   (set-face-attribute 'default nil
                       :family my/default-font
@@ -507,7 +506,8 @@ Some general display configuration for a better overall experience.
 
   ;; (use-package doom-themes
   ;;   :config
-  ;;   (load-theme 'doom-monokai-pro t))
+  ;;   (load-theme 'doom-zenburn t)
+  ;;   (doom-themes-org-config))
 
   ;; (use-package modus-themes
   ;;   :bind
@@ -521,38 +521,27 @@ Some general display configuration for a better overall experience.
   ;;         modus-themes-org-blocks 'gray-background)
   ;;   (load-theme 'modus-vivendi t))
 
-  ;; (use-package spacemacs-theme
-  ;;   :defer t
-  ;;   :init
-  ;;   (load-theme 'spacemacs-dark t))
+  (use-package spacemacs-theme
+    :defer t
+    :init
+    (load-theme 'spacemacs-dark t))
 
-  (use-package mindre-theme
-    :custom
-    (mindre-use-more-bold nil)
-    (mindre-use-faded-lisp-parens nil)
-    :custom-face
-    (mindre-faded ((t (:foreground "#585c60"))))
-    :config
-    (load-theme 'mindre t)
-    ;; Gray modeline
-    ;; (set-face-attribute 'mode-line nil
-    ;;                     :background "#2b2b2b" :foreground "#eceff1"
-    ;;                     :height (- my/default-font-height 20)
-    ;;                     :box '(:line-width 6 :color "#2b2b2b"))
-    ;; (set-face-attribute 'mode-line-inactive nil
-    ;;                     :background "#666666" :foreground "#eceff1"
-    ;;                     :height (- my/default-font-height 20)
-    ;;                     :box '(:line-width 6 :color "#666666"))
-
-    ;; Purple modeline
-    (set-face-attribute 'mode-line nil
-                        :background "#5c3e99" :foreground "#eceff1"
-                        :height (- my/default-font-height 20)
-                        :box '(:line-width 6 :color "#5c3e99"))
-    (set-face-attribute 'mode-line-inactive nil
-                        :background "#a991cf" :foreground "#eceff1"
-                        :height (- my/default-font-height 20)
-                        :box '(:line-width 6 :color "#a991cf")))
+  ;; (use-package mindre-theme
+  ;;   :custom
+  ;;   (mindre-use-more-bold nil)
+  ;;   (mindre-use-faded-lisp-parens nil)
+  ;;   :custom-face
+  ;;   (mindre-faded ((t (:foreground "#585c60"))))
+  ;;   :config
+  ;;   (load-theme 'mindre t)
+  ;;   (set-face-attribute 'mode-line nil
+  ;;                       :background "#5c3e99" :foreground "#eceff1"
+  ;;                       :height (- my/default-font-height 20)
+  ;;                       :box '(:line-width 6 :color "#5c3e99"))
+  ;;   (set-face-attribute 'mode-line-inactive nil
+  ;;                       :background "#a991cf" :foreground "#eceff1"
+  ;;                       :height (- my/default-font-height 20)
+  ;;                       :box '(:line-width 6 :color "#a991cf")))
 
 #+end_src
 
@@ -571,10 +560,22 @@ Some general display configuration for a better overall experience.
   ;;    '(mode-line-active ((t (:height 0.9))))
   ;;    '(mode-line-inactive ((t (:height 0.9))))))
 
-  ;; (use-package spaceline
-  ;;   :init
-  ;;   (spaceline-spacemacs-theme)
-  ;;   (require 'spaceline-config))
+  (use-package spaceline
+    :init
+    (require 'spaceline-config)
+    (spaceline-spacemacs-theme))
+
+  ;; (defun my/config-default-modeline ()
+  ;;   (let ((bg-color (face-attribute 'mode-line :background))
+  ;;         (inactive-bg-color (face-attribute 'mode-line-inactive :background)))
+  ;;   (set-face-attribute 'mode-line nil
+  ;;                       :height (- my/default-font-height 40)
+  ;;                       :box `(:line-width 6 :color ,bg-color))
+  ;;   (set-face-attribute 'mode-line-inactive nil
+  ;;                       :height (- my/default-font-height 40)
+  ;;                       :box `(:line-width 6 :color ,inactive-bg-color))))
+
+  ;; (my/config-default-modeline)
 
 #+end_src
 
