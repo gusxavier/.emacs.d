@@ -387,6 +387,14 @@ In order to enable ligatures, I added a [[file+emacs:custom/pragmatapro-lig.el][
 
 #+end_src
 
+#+begin_src emacs-lisp
+
+  ;; Enable emoji support
+  (use-package emojify
+    :hook
+    (after-init . global-emojify-mode))
+
+#+end_src
 
 ** Icons
 
