@@ -135,10 +135,10 @@ Below we have some general configuration that forms the base for Emacs usage.
 
   ;; Load env variables from PATH inside Emacs
   ;; P.S: only needed for Mac OS
-  (when (eq system-type 'darwin)
-    (use-package exec-path-from-shell
-      :config
-      (exec-path-from-shell-initialize)))
+  (use-package exec-path-from-shell
+    :if (memq window-system '(mac ns))
+    :config
+    (exec-path-from-shell-initialize))
 
   ;; Select regions by expanding chunks of text
   (use-package expand-region
