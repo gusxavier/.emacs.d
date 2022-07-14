@@ -650,17 +650,28 @@ Some general display configuration for a better overall experience.
     :hook
     (clojure-mode . lsp-deferred))
 
+  (defun my/cider-mode-hook ()
+    (smartparens-strict-mode)
+    ;; Use CIDER completion when the REPL is on
+    (setq-local lsp-enable-completion-at-point nil)
+    ;; Temporary fix to use cider completions with corfu
+    (setq-local completion-styles '(basic)))
+
   (use-package cider
     :commands cider-jack-in
     :bind
     ("C-c M-b" . cider-repl-clear-buffer)
     :hook
-    (cider-repl-mode . smartparens-strict-mode)
+    (cider-mode . my/cider-mode-hook)
     :config
     (unbind-key "M-." cider-mode-map)
     (unbind-key "M-," cider-mode-map)
-    (setq cider-prompt-for-symbol nil
-          cider-test-defining-forms '("deftest" "defspec" "defflow" "init-flow")))
+    :custom
+    (cider-prompt-for-symbol nil)
+    (cider-test-defining-forms '("deftest"
+                                 "defspec"
+                                 "defflow"
+                                 "init-flow")))
 
   ;; Better visualization of test results
   (defun my/cider-ansi-color-string-p (value)
