@@ -59,11 +59,11 @@
 (add-to-list 'load-path (expand-file-name "custom/" user-emacs-directory))
 
 ;; Keep folders clean
-(use-package no-littering)
-
-;; Store auto save files in the no-littering specific dir
-(setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+(use-package no-littering
+  :custom
+  ;; Store auto save files in the no-littering specific dir
+  (auto-save-file-name-transforms
+   `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 
 ;; Diminish modes on modeline
 (use-package diminish
@@ -178,6 +178,7 @@
    ("C-x b" . consult-buffer)
    ("C-c C-j" . consult-imenu)
    ("C-c p s s" . consult-ripgrep)
+   ("C-x p g" . consult-ripgrep)
    ("M-g g" . consult-goto-line)
    ("M-g M-g" . consult-goto-line)
    ("C-x p b" . consult-project-buffer)
@@ -292,13 +293,13 @@
   :if (display-graphic-p))
 
 ;; Show icons in completion
-;; (use-package all-the-icons-completion
-;;   :after
-;;   (marginalia all-the-icons)
-;;   :hook
-;;   (marginalia-mode . all-the-icons-completion-marginalia-setup)
-;;   :init
-;;   (all-the-icons-completion-mode))
+(use-package all-the-icons-completion
+  :after
+  (marginalia all-the-icons)
+  :hook
+  (marginalia-mode . all-the-icons-completion-marginalia-setup)
+  :init
+  (all-the-icons-completion-mode))
 
 ;; Remove scroll bar
 (scroll-bar-mode -1)
