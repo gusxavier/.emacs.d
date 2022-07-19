@@ -78,13 +78,6 @@
   :bind
   (("M-;" . 'evilnc-comment-or-uncomment-lines)))
 
-;; Load env variables from PATH inside Emacs
-;; P.S: only needed for Mac OS
-(use-package exec-path-from-shell
-  :if (memq window-system '(mac ns))
-  :config
-  (exec-path-from-shell-initialize))
-
 ;; Select regions by expanding chunks of text
 (use-package expand-region
   :bind
