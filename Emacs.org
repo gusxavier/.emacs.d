@@ -498,10 +498,10 @@ Some general display configuration for a better overall experience.
 
 #+begin_src emacs-lisp
 
-  ;; (use-package doom-themes
-  ;;   :config
-  ;;   (load-theme 'doom-zenburn t)
-  ;;   (doom-themes-org-config))
+  (use-package doom-themes
+    :config
+    (load-theme 'doom-one t)
+    (doom-themes-org-config))
 
   ;; (use-package modus-themes
   ;;   :bind
@@ -515,10 +515,10 @@ Some general display configuration for a better overall experience.
   ;;         modus-themes-org-blocks 'gray-background)
   ;;   (load-theme 'modus-vivendi t))
 
-  (use-package spacemacs-theme
-    :defer t
-    :init
-    (load-theme 'spacemacs-dark t))
+  ;; (use-package spacemacs-theme
+  ;;   :defer t
+  ;;   :init
+  ;;   (load-theme 'spacemacs-dark t))
 
   ;; (use-package mindre-theme
   ;;   :custom
@@ -544,20 +544,20 @@ Some general display configuration for a better overall experience.
 #+begin_src emacs-lisp
 
   ;; Better modeline
-  ;; (use-package doom-modeline
-  ;;   :init
-  ;;   (doom-modeline-mode 1)
-  ;;   :config
-  ;;   (setq doom-modeline-height 1)
-  ;;   (custom-set-faces
-  ;;    '(mode-line ((t (:height 0.9))))
-  ;;    '(mode-line-active ((t (:height 0.9))))
-  ;;    '(mode-line-inactive ((t (:height 0.9))))))
-
-  (use-package spaceline
+  (use-package doom-modeline
     :init
-    (require 'spaceline-config)
-    (spaceline-spacemacs-theme))
+    (doom-modeline-mode 1)
+    :config
+    (setq doom-modeline-height 1)
+    (custom-set-faces
+     '(mode-line ((t (:height 0.9))))
+     '(mode-line-active ((t (:height 0.9))))
+     '(mode-line-inactive ((t (:height 0.9))))))
+
+  ;; (use-package spaceline
+  ;;   :init
+  ;;   (require 'spaceline-config)
+  ;;   (spaceline-spacemacs-theme))
 
   ;; (defun my/config-default-modeline ()
   ;;   (let ((bg-color (face-attribute 'mode-line :background))

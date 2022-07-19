@@ -59,11 +59,11 @@
 (add-to-list 'load-path (expand-file-name "custom/" user-emacs-directory))
 
 ;; Keep folders clean
-(use-package no-littering
-  :custom
-  ;; Store auto save files in the no-littering specific dir
-  (auto-save-file-name-transforms
-   `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
+(use-package no-littering)
+
+;; Store auto save files in the no-littering specific dir
+(setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
 ;; Diminish modes on modeline
 (use-package diminish
@@ -366,10 +366,10 @@
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
-;; (use-package doom-themes
-;;   :config
-;;   (load-theme 'doom-zenburn t)
-;;   (doom-themes-org-config))
+(use-package doom-themes
+  :config
+  (load-theme 'doom-one t)
+  (doom-themes-org-config))
 
 ;; (use-package modus-themes
 ;;   :bind
@@ -383,10 +383,10 @@
 ;;         modus-themes-org-blocks 'gray-background)
 ;;   (load-theme 'modus-vivendi t))
 
-(use-package spacemacs-theme
-  :defer t
-  :init
-  (load-theme 'spacemacs-dark t))
+;; (use-package spacemacs-theme
+;;   :defer t
+;;   :init
+;;   (load-theme 'spacemacs-dark t))
 
 ;; (use-package mindre-theme
 ;;   :custom
@@ -406,20 +406,20 @@
 ;;                       :box '(:line-width 6 :color "#a991cf")))
 
 ;; Better modeline
-;; (use-package doom-modeline
-;;   :init
-;;   (doom-modeline-mode 1)
-;;   :config
-;;   (setq doom-modeline-height 1)
-;;   (custom-set-faces
-;;    '(mode-line ((t (:height 0.9))))
-;;    '(mode-line-active ((t (:height 0.9))))
-;;    '(mode-line-inactive ((t (:height 0.9))))))
-
-(use-package spaceline
+(use-package doom-modeline
   :init
-  (require 'spaceline-config)
-  (spaceline-spacemacs-theme))
+  (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-height 1)
+  (custom-set-faces
+   '(mode-line ((t (:height 0.9))))
+   '(mode-line-active ((t (:height 0.9))))
+   '(mode-line-inactive ((t (:height 0.9))))))
+
+;; (use-package spaceline
+;;   :init
+;;   (require 'spaceline-config)
+;;   (spaceline-spacemacs-theme))
 
 ;; (defun my/config-default-modeline ()
 ;;   (let ((bg-color (face-attribute 'mode-line :background))
