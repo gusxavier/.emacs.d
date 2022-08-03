@@ -246,10 +246,10 @@
 (use-package vterm
   :commands vterm)
 
-(defvar my/default-font "PragmataPro Mono Liga")
+(defvar my/default-font "PragmataPro")
 
 ;; Set a different font size between MacOS and Linux
-(defvar my/default-font-height (if (eq system-type 'darwin) 210 160))
+(defvar my/default-font-height (if (eq system-type 'darwin) 210 190))
 
 (set-face-attribute 'default nil
                     :family my/default-font
@@ -275,23 +275,11 @@
 ;; (diminish 'pragmatapro-lig-mode)
 
 ;; Enable emoji support
-(use-package emojify
-  ;; :hook
-  ;; (after-init . global-emojify-mode)
-  )
+(use-package emojify)
 
 ;; Run M-x all-the-icons-install-fonts in the first time
 (use-package all-the-icons
   :if (display-graphic-p))
-
-;; Show icons in completion
-;; (use-package all-the-icons-completion
-;;   :after
-;;   (marginalia all-the-icons)
-;;   :hook
-;;   (marginalia-mode . all-the-icons-completion-marginalia-setup)
-;;   :init
-;;   (all-the-icons-completion-mode))
 
 ;; Remove scroll bar
 (scroll-bar-mode -1)
@@ -344,9 +332,6 @@
 ;; Set blinking cursor
 (blink-cursor-mode +1)
 
-;; Set the cursor type as a thin vertical bar
-;; (setq-default cursor-type 'bar)
-
 ;; File tree sidebar
 (use-package treemacs
   :commands treemacs
@@ -365,10 +350,10 @@
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
-(use-package doom-themes
-  :config
-  (load-theme 'doom-dracula t)
-  (doom-themes-org-config))
+;; (use-package doom-themes
+;;   :config
+;;   (load-theme 'doom-dracula t)
+;;   (doom-themes-org-config))
 
 ;; (use-package modus-themes
 ;;   :bind
@@ -382,56 +367,12 @@
 ;;         modus-themes-org-blocks 'gray-background)
 ;;   (load-theme 'modus-vivendi t))
 
-;; (use-package spacemacs-theme
-;;   :defer t
-;;   :init
-;;   (load-theme 'spacemacs-dark t))
-
-;; (use-package mindre-theme
-;;   :custom
-;;   (mindre-use-more-bold nil)
-;;   (mindre-use-faded-lisp-parens nil)
-;;   :custom-face
-;;   (mindre-faded ((t (:foreground "#585c60"))))
-;;   :config
-;;   (load-theme 'mindre t)
-;;   (set-face-attribute 'mode-line nil
-;;                       :background "#5c3e99" :foreground "#eceff1"
-;;                       :height (- my/default-font-height 20)
-;;                       :box '(:line-width 6 :color "#5c3e99"))
-;;   (set-face-attribute 'mode-line-inactive nil
-;;                       :background "#a991cf" :foreground "#eceff1"
-;;                       :height (- my/default-font-height 20)
-;;                       :box '(:line-width 6 :color "#a991cf")))
-
-;; Better modeline
-;; (use-package doom-modeline
-;;   :init
-;;   (doom-modeline-mode 1)
-;;   :custom
-;;   (doom-modeline-height 1)
-;;   :config
-;;   (custom-set-faces
-;;    '(mode-line ((t (:height 0.9))))
-;;    '(mode-line-active ((t (:height 0.9))))
-;;    '(mode-line-inactive ((t (:height 0.9))))))
-
-;; (use-package spaceline
-;;   :init
-;;   (require 'spaceline-config)
-;;   (spaceline-spacemacs-theme))
-
-;; (defun my/config-default-modeline ()
-;;   (let ((bg-color (face-attribute 'mode-line :background))
-;;         (inactive-bg-color (face-attribute 'mode-line-inactive :background)))
-;;   (set-face-attribute 'mode-line nil
-;;                       :height (- my/default-font-height 40)
-;;                       :box `(:line-width 6 :color ,bg-color))
-;;   (set-face-attribute 'mode-line-inactive nil
-;;                       :height (- my/default-font-height 40)
-;;                       :box `(:line-width 6 :color ,inactive-bg-color))))
-
-;; (my/config-default-modeline)
+(use-package mindre-theme
+  :custom
+  (mindre-use-more-bold nil)
+  (mindre-use-faded-lisp-parens t)
+  :config
+  (load-theme 'mindre t))
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
@@ -463,22 +404,26 @@
   (lsp-log-io nil)
   (lsp-restart 'auto-restart)
   (lsp-enable-symbol-highlighting nil)
-  (lsp-enable-on-type-formatting nil)
+  ;; (lsp-enable-on-type-formatting nil)
   (lsp-signature-auto-activate nil)
   (lsp-modeline-code-actions-enable nil)
-  (lsp-modeline-diagnostics-enable nil)
+  ;; (lsp-modeline-diagnostics-enable nil)
   (lsp-headerline-breadcrumb-enable nil)
   (lsp-enable-folding nil)
   (lsp-enable-imenu nil)
   (lsp-enable-snippet nil)
   (lsp-lens-enable nil)
-  (lsp-enable-indentation nil)
-  (lsp-completion-provider :none) ;; Use corfu as completion
-  (lsp-rust-analyzer-cargo-watch-command "clippy"))
+  (lsp-enable-indentation t)
+  ;; Use corfu as completion
+  (lsp-completion-provider :none))
 
 ;; LSP + Treemacs integration
 (use-package lsp-treemacs
   :after lsp)
+
+;; LSP + Consult
+(use-package consult-lsp
+  :after (consult lsp))
 
 (use-package clojure-mode
   :hook
