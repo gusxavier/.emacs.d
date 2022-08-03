@@ -107,11 +107,11 @@ Below we have some general configuration that forms the base for Emacs usage.
 #+begin_src emacs-lisp
 
   ;; Keep folders clean
-  (use-package no-littering)
-
-  ;; Store auto save files in the no-littering specific dir
-  (setq auto-save-file-name-transforms
-        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+  (use-package no-littering
+    :custom
+    ;; Store auto save files in the no-littering specific dir
+    (auto-save-file-name-transforms
+     `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 
 #+end_src
 
@@ -190,9 +190,6 @@ Below we have some general configuration that forms the base for Emacs usage.
   ;; Keybinding to open config file
   (global-set-key (kbd "<f9>") 'my/load-config-file)
 
-  ;; Never left an open bracket
-  (add-hook 'text-mode-hook #'electric-pair-mode)
-
 #+end_src
 
 
@@ -204,10 +201,10 @@ Below we have some general configuration that forms the base for Emacs usage.
     :after orderless
     :init
     (global-corfu-mode)
-    :config
-    (setq corfu-auto t)
-    (setq corfu-cycle t)
-    (setq corfu-auto-prefix 1))
+    :custom
+    (corfu-auto t)
+    (corfu-cycle t)
+    (corfu-auto-prefix 1))
 
 #+end_src
 
@@ -218,18 +215,18 @@ Below we have some general configuration that forms the base for Emacs usage.
 
   ;; Better completion style
   (use-package orderless
-    :init
-    (setq completion-styles '(orderless))
-    (setq completion-category-defaults nil)
-    (setq completion-category-overrides '((file (styles basic partial-completion))))
-    (setq orderless-matching-styles '(orderless-literal orderless-prefixes orderless-initialism orderless-regexp)))
+    :custom
+    (completion-styles '(orderless))
+    (completion-category-defaults nil)
+    (completion-category-overrides '((file (styles basic partial-completion))))
+    (orderless-matching-styles '(orderless-literal orderless-prefixes orderless-initialism orderless-regexp)))
 
   ;; Completion framework
   (use-package vertico
     :init
     (vertico-mode 1)
-    :config
-    (setq vertico-cycle t))
+    :custom
+    (vertico-cycle t))
 
   ;; Improve completing-read
   (use-package consult
@@ -277,8 +274,9 @@ Below we have some general configuration that forms the base for Emacs usage.
     (("C-." . embark-act)
      ("M-." . embark-dwim)
      ("C-h B" . embark-bindings))
+    :custom
+    (prefix-help-command #'embark-prefix-help-command)
     :config
-    (setq prefix-help-command #'embark-prefix-help-command)
     (add-to-list 'display-buffer-alist
                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                    nil
@@ -297,10 +295,10 @@ Below we have some general configuration that forms the base for Emacs usage.
            ("M-A" . marginalia-cycle))
     :init
     (marginalia-mode)
-    :config
-    (setq marginalia-max-relative-age 0)
-    (setq marginalia-align 'right)
-    (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
+    :custom
+    (marginalia-max-relative-age 0)
+    (marginalia-align 'right)
+    (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
 
   ;; Use tab to open autocomplete
   (setq tab-always-indent 'complete)
@@ -344,10 +342,10 @@ I mainly use the PragmataPro font with enabled ligatures.
 
 #+begin_src emacs-lisp
 
-  (defvar my/default-font "PragmataPro Liga")
+  (defvar my/default-font "PragmataPro Mono Liga")
 
   ;; Set a different font size between MacOS and Linux
-  (defvar my/default-font-height (if (eq system-type 'darwin) 200 160))
+  (defvar my/default-font-height (if (eq system-type 'darwin) 210 160))
 
   (set-face-attribute 'default nil
                       :family my/default-font
@@ -374,9 +372,9 @@ In order to enable ligatures, I added a [[file+emacs:custom/pragmatapro-lig.el][
 #+begin_src emacs-lisp
 
   ;; Enable PragmataPro font ligatures
-  (require 'pragmatapro-lig)
-  (pragmatapro-lig-global-mode)
-  (diminish 'pragmatapro-lig-mode)
+  ;; (require 'pragmatapro-lig)
+  ;; (pragmatapro-lig-global-mode)
+  ;; (diminish 'pragmatapro-lig-mode)
 
 #+end_src
 
@@ -384,8 +382,9 @@ In order to enable ligatures, I added a [[file+emacs:custom/pragmatapro-lig.el][
 
   ;; Enable emoji support
   (use-package emojify
-    :hook
-    (after-init . global-emojify-mode))
+    ;; :hook
+    ;; (after-init . global-emojify-mode)
+    )
 
 #+end_src
 
@@ -402,13 +401,13 @@ If the config is loaded on a fresh Emacs install, we need to run M-x all-the-ico
     :if (display-graphic-p))
 
   ;; Show icons in completion
-  (use-package all-the-icons-completion
-    :after
-    (marginalia all-the-icons)
-    :hook
-    (marginalia-mode . all-the-icons-completion-marginalia-setup)
-    :init
-    (all-the-icons-completion-mode))
+  ;; (use-package all-the-icons-completion
+  ;;   :after
+  ;;   (marginalia all-the-icons)
+  ;;   :hook
+  ;;   (marginalia-mode . all-the-icons-completion-marginalia-setup)
+  ;;   :init
+  ;;   (all-the-icons-completion-mode))
 
 #+end_src
 
@@ -471,15 +470,15 @@ Some general display configuration for a better overall experience.
   (blink-cursor-mode +1)
 
   ;; Set the cursor type as a thin vertical bar
-  (setq-default cursor-type 'bar)
+  ;; (setq-default cursor-type 'bar)
 
   ;; File tree sidebar
   (use-package treemacs
     :commands treemacs
     :bind
     ("<f8>" . treemacs)
-    :config
-    (setq treemacs-text-scale -0.5))
+    :custom
+    (treemacs-text-scale -0.5))
 
   (use-package treemacs-all-the-icons
     :after (treemacs all-the-icons)
@@ -500,7 +499,7 @@ Some general display configuration for a better overall experience.
 
   (use-package doom-themes
     :config
-    (load-theme 'doom-one t)
+    (load-theme 'doom-dracula t)
     (doom-themes-org-config))
 
   ;; (use-package modus-themes
@@ -544,15 +543,16 @@ Some general display configuration for a better overall experience.
 #+begin_src emacs-lisp
 
   ;; Better modeline
-  (use-package doom-modeline
-    :init
-    (doom-modeline-mode 1)
-    :config
-    (setq doom-modeline-height 1)
-    (custom-set-faces
-     '(mode-line ((t (:height 0.9))))
-     '(mode-line-active ((t (:height 0.9))))
-     '(mode-line-inactive ((t (:height 0.9))))))
+  ;; (use-package doom-modeline
+  ;;   :init
+  ;;   (doom-modeline-mode 1)
+  ;;   :custom
+  ;;   (doom-modeline-height 1)
+  ;;   :config
+  ;;   (custom-set-faces
+  ;;    '(mode-line ((t (:height 0.9))))
+  ;;    '(mode-line-active ((t (:height 0.9))))
+  ;;    '(mode-line-inactive ((t (:height 0.9))))))
 
   ;; (use-package spaceline
   ;;   :init
@@ -621,22 +621,22 @@ Some general display configuration for a better overall experience.
     (lsp-mode . lsp-enable-which-key-integration)
     :init
     (setq lsp-keymap-prefix "C-c l")
-    :config
-    (setq lsp-log-io nil)
-    (setq lsp-restart 'auto-restart)
-    (setq lsp-enable-symbol-highlighting nil)
-    (setq lsp-enable-on-type-formatting nil)
-    (setq lsp-signature-auto-activate nil)
-    (setq lsp-modeline-code-actions-enable nil)
-    (setq lsp-modeline-diagnostics-enable nil)
-    (setq lsp-headerline-breadcrumb-enable nil)
-    (setq lsp-enable-folding nil)
-    (setq lsp-enable-imenu nil)
-    (setq lsp-enable-snippet nil)
-    (setq lsp-lens-enable nil)
-    (setq lsp-enable-indentation nil)
-    (setq lsp-completion-provider :none) ;; Use corfu as completion
-    (setq lsp-rust-analyzer-cargo-watch-command "clippy"))
+    :custom
+    (lsp-log-io nil)
+    (lsp-restart 'auto-restart)
+    (lsp-enable-symbol-highlighting nil)
+    (lsp-enable-on-type-formatting nil)
+    (lsp-signature-auto-activate nil)
+    (lsp-modeline-code-actions-enable nil)
+    (lsp-modeline-diagnostics-enable nil)
+    (lsp-headerline-breadcrumb-enable nil)
+    (lsp-enable-folding nil)
+    (lsp-enable-imenu nil)
+    (lsp-enable-snippet nil)
+    (lsp-lens-enable nil)
+    (lsp-enable-indentation nil)
+    (lsp-completion-provider :none) ;; Use corfu as completion
+    (lsp-rust-analyzer-cargo-watch-command "clippy"))
 
   ;; LSP + Treemacs integration
   (use-package lsp-treemacs
@@ -783,10 +783,17 @@ Some general display configuration for a better overall experience.
     :commands (org-capture org-agenda)
     :hook
     (org-mode . my/org-mode-setup)
-    :config
+    :custom
     ;; UI IMPROVEMENTS
-    (setq org-ellipsis " ▾")
-    (setq org-hide-emphasis-markers t)
+    (org-ellipsis " ▾")
+    (org-hide-emphasis-markers t)
+    ;; ORG-AGENDA
+    (org-todo-keywords
+     '((sequence "TODO(t)" "DOING(i)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
+    (org-agenda-start-with-log-mode t)
+    (org-log-done 'time)
+    (org-log-into-drawer t)
+    :config
     ;; Replace list hyphen with dot
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
@@ -796,14 +803,8 @@ Some general display configuration for a better overall experience.
 
     ;; ORG-AGENDA
     (defvar org-files-dir "~/dev/org-files")
-
     (setq org-agenda-files (list (expand-file-name "Tasks.org" org-files-dir)
                                  (expand-file-name "Birthdays.org" org-files-dir)))
-    (setq org-todo-keywords
-          '((sequence "TODO(t)" "DOING(i)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
-    (setq org-agenda-start-with-log-mode t)
-    (setq org-log-done 'time)
-    (setq org-log-into-drawer t)
 
     ;; ORG-BABEL
     (require 'org-tempo)
@@ -857,14 +858,15 @@ Some general display configuration for a better overall experience.
      ("C-c n b" . my/org-roam-capture-inbox))
     :bind-keymap
     ("C-c n d" . org-roam-dailies-map)
-    :config
-    (setq org-roam-directory "~/dev/org-roam")
-    (setq org-roam-completion-everywhere t)
+    :custom
+    (org-roam-directory "~/dev/org-roam")
+    (org-roam-completion-everywhere t)
     ;; Enable marginalia tags
-    (setq org-roam-node-display-template
-          (concat "${title:80} " (propertize "${tags:20}" 'face 'org-tag))
-          org-roam-node-annotation-function
-          (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
+    (org-roam-node-display-template
+     (concat "${title:80} " (propertize "${tags:20}" 'face 'org-tag))
+     org-roam-node-annotation-function
+     (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
+    :config
     (require 'org-roam-dailies)
     (setq org-roam-dailies-directory "Dailies/")
     (setq org-roam-capture-templates
@@ -895,11 +897,11 @@ Some general display configuration for a better overall experience.
   (use-package org-roam-ui
     :diminish
     :after org-roam
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
+    :custom
+    (org-roam-ui-sync-theme t)
+    (org-roam-ui-follow t)
+    (org-roam-ui-update-on-save t)
+    (org-roam-ui-open-on-start t))
 
 #+end_src
 
