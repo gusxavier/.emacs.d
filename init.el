@@ -517,9 +517,6 @@
   ;; ORG-AGENDA
   (org-todo-keywords
    '((sequence "TODO(t)" "DOING(i)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
-  (org-agenda-start-with-log-mode t)
-  (org-log-done 'time)
-  (org-log-into-drawer t)
   :config
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
@@ -527,11 +524,6 @@
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
   ;; Make org link open file in the same buffer
   (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
-
-  ;; ORG-AGENDA
-  (defvar org-files-dir "~/dev/org-files")
-  (setq org-agenda-files (list (expand-file-name "Tasks.org" org-files-dir)
-                               (expand-file-name "Birthdays.org" org-files-dir)))
 
   ;; ORG-BABEL
   (require 'org-tempo)
@@ -569,60 +561,6 @@
   (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
-
-(use-package org-roam
-  :bind
-  (("C-c n l" . org-roam-buffer-toggle)
-   ("C-c n f" . org-roam-node-find)
-   ("C-c n i" . org-roam-node-insert)
-   ("C-c n I" . my/org-roam-node-insert-imediate)
-   ("C-c n b" . my/org-roam-capture-inbox))
-  :bind-keymap
-  ("C-c n d" . org-roam-dailies-map)
-  :custom
-  (org-roam-directory "~/dev/org-roam")
-  (org-roam-completion-everywhere t)
-  ;; Enable marginalia tags
-  (org-roam-node-display-template
-   (concat "${title:80} " (propertize "${tags:20}" 'face 'org-tag))
-   org-roam-node-annotation-function
-   (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
-  :config
-  (require 'org-roam-dailies)
-  (setq org-roam-dailies-directory "Dailies/")
-  (setq org-roam-capture-templates
-        '(("d" "default" plain
-           "%?"
-           :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-           :unnarrowed t)
-          ("p" "project" plain
-           (file (expand-file-name "Templates/ProjectTemplate.org" org-roam-directory))
-           :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: Project")
-           :unnarrowed t)))
-  (org-roam-setup))
-
-(defun my/org-roam-node-insert-imediate (arg &rest args)
-  (interactive "P")
-  (let ((args (cons arg args))
-        (org-roam-capture-templates (list (append (car org-roam-capture-templates)
-                                                  '(:immediate-finish t)))))
-    (apply #'org-roam-node-insert args)))
-
-(defun my/org-roam-capture-inbox ()
-  (interactive)
-  (org-roam-capture- :node (org-roam-node-create)
-                     :templates '(("i" "inbox" plain "* TODO %?"
-                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n\n\n")))))
-
-(use-package org-roam-ui
-  :diminish
-  :after org-roam
-  :custom
-  (org-roam-ui-sync-theme t)
-  (org-roam-ui-follow t)
-  (org-roam-ui-update-on-save t)
-  (org-roam-ui-open-on-start t))
 
 ;; Start emacs server to enable emacsclient
 (if (and (fboundp 'server-running-p)
