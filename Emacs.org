@@ -338,14 +338,14 @@ Before installing and compiling vterm, check the dependencies at the [[https://g
 
 ** Font
 
-I mainly use the PragmataPro font with enabled ligatures.
+I mainly use the PragmataPro font.
 
 #+begin_src emacs-lisp
 
-  (defvar my/default-font "PragmataPro")
+  (defvar my/default-font "PragmataPro Mono")
 
   ;; Set a different font size between MacOS and Linux
-  (defvar my/default-font-height (if (eq system-type 'darwin) 210 190))
+  (defvar my/default-font-height (if (eq system-type 'darwin) 230 190))
 
   (set-face-attribute 'default nil
                       :family my/default-font
@@ -463,6 +463,7 @@ Some general display configuration for a better overall experience.
     :bind
     ("<f8>" . treemacs)
     :custom
+    (treemacs-space-between-root-nodes nil)
     (treemacs-text-scale -0.5))
 
   (use-package treemacs-all-the-icons
@@ -482,10 +483,10 @@ Some general display configuration for a better overall experience.
 
 #+begin_src emacs-lisp
 
-  ;; (use-package doom-themes
-  ;;   :config
-  ;;   (load-theme 'doom-dracula t)
-  ;;   (doom-themes-org-config))
+  (use-package doom-themes
+    :config
+    (load-theme 'doom-monokai-pro t)
+    (doom-themes-org-config))
 
   ;; (use-package modus-themes
   ;;   :bind
@@ -499,12 +500,12 @@ Some general display configuration for a better overall experience.
   ;;         modus-themes-org-blocks 'gray-background)
   ;;   (load-theme 'modus-vivendi t))
 
-  (use-package mindre-theme
-    :custom
-    (mindre-use-more-bold nil)
-    (mindre-use-faded-lisp-parens t)
-    :config
-    (load-theme 'mindre t))
+  ;; (use-package mindre-theme
+  ;;   :custom
+  ;;   (mindre-use-more-bold nil)
+  ;;   (mindre-use-faded-lisp-parens t)
+  ;;   :config
+  ;;   (load-theme 'mindre t))
 
 #+end_src
 
@@ -559,23 +560,23 @@ Some general display configuration for a better overall experience.
     :custom
     (lsp-log-io nil)
     (lsp-restart 'auto-restart)
-    (lsp-enable-symbol-highlighting nil)
-    ;; (lsp-enable-on-type-formatting nil)
+    (lsp-enable-symbol-highlighting t)
+    (lsp-enable-on-type-formatting t)
+    (lsp-enable-indentation t)
     (lsp-signature-auto-activate nil)
     (lsp-modeline-code-actions-enable nil)
-    ;; (lsp-modeline-diagnostics-enable nil)
+    (lsp-modeline-diagnostics-enable nil)
     (lsp-headerline-breadcrumb-enable nil)
     (lsp-enable-folding nil)
     (lsp-enable-imenu nil)
     (lsp-enable-snippet nil)
     (lsp-lens-enable nil)
-    (lsp-enable-indentation t)
     ;; Use corfu as completion
     (lsp-completion-provider :none))
 
   ;; LSP + Treemacs integration
   (use-package lsp-treemacs
-    :after lsp)
+    :after (lsp treemacs))
 
   ;; LSP + Consult
   (use-package consult-lsp
@@ -590,7 +591,9 @@ Some general display configuration for a better overall experience.
 
   (use-package clojure-mode
     :hook
-    (clojure-mode . lsp-deferred))
+    (clojure-mode . lsp-deferred)
+    :custom
+    (clojure-align-forms-automatically nil))
 
   (defun my/cider-mode-hook ()
     (smartparens-strict-mode)
@@ -609,6 +612,8 @@ Some general display configuration for a better overall experience.
     (unbind-key "M-." cider-mode-map)
     (unbind-key "M-," cider-mode-map)
     :custom
+    (cider-repl-display-help-banner nil)
+    (cider-pprint-fn 'fipp)
     (cider-prompt-for-symbol nil)
     (cider-test-defining-forms '("deftest"
                                  "defspec"
@@ -715,6 +720,7 @@ Some general display configuration for a better overall experience.
     "Custom 'org-mode' setup."
     (org-indent-mode)
     (diminish 'org-indent-mode)
+    (smartparens-mode 1)
     (visual-line-mode 1))
 
   (use-package org
@@ -725,6 +731,7 @@ Some general display configuration for a better overall experience.
     :custom
     ;; UI IMPROVEMENTS
     (org-ellipsis " ▾")
+    (org-src-preserve-indentation t)
     (org-hide-emphasis-markers t)
     ;; ORG-AGENDA
     (org-todo-keywords
