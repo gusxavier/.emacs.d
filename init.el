@@ -246,21 +246,18 @@
   (use-package vterm
     :commands vterm)
 
-  (defvar my/default-font "PragmataPro Mono")
+  (defvar my/default-font-height
+    (if (eq system-type 'darwin) 200 180))
 
-  ;; Set a different font size between MacOS and Linux
-  (defvar my/default-font-height (if (eq system-type 'darwin) 230 190))
+  (defvar my/default-font
+    (concat "PragmataPro"
+	        " "
+		(number-to-string (/ my/default-font-height 10))))
 
-  (set-face-attribute 'default nil
-                      :family my/default-font
-                      :height my/default-font-height
-                      :weight 'regular)
+  (set-frame-font my/default-font t t)
 
-  ;; Fixed pitch font is used in places like org mode src blocks
-  (set-face-attribute 'fixed-pitch nil
-                      :family my/default-font
-                      :height my/default-font-height
-                      :weight 'regular)
+  ;; Set font line height
+  (setq-default default-text-properties '(line-spacing 0.25 line-height 1.25))
 
   ;; Set encoding to UTF-8
   (set-language-environment "UTF-8")
@@ -269,13 +266,22 @@
   ;; Avoid slowness with some fonts
   (setq inhibit-compacting-font-caches t)
 
+  ;; Change minibuffer line height
+  (defun my/minibuffer-setup ()
+    (set (make-local-variable 'face-remapping-alist)
+	 '((default :height 0.9))))
+  (add-hook 'minibuffer-setup-hook 'my/minibuffer-setup)
+
+  ;; (setq-default resize-mini-windows nil)
+
+  ;; (setq-default max-mini-window-height 0.25)
+
+  ;; (window-resize (minibuffer-window) -1)
+
   ;; Enable PragmataPro font ligatures
   ;; (require 'pragmatapro-lig)
   ;; (pragmatapro-lig-global-mode)
   ;; (diminish 'pragmatapro-lig-mode)
-
-  ;; Enable emoji support
-  (use-package emojify)
 
   ;; Run M-x all-the-icons-install-fonts in the first time
   (use-package all-the-icons
@@ -323,7 +329,7 @@
   (setq inhibit-startup-message t)
 
   ;; Highlight parens
-  (show-paren-mode t)
+  (show-paren-mode -1)
 
   ;; At last some piece and quiet
   (setq visible-bell t)
@@ -331,6 +337,9 @@
 
   ;; Set blinking cursor
   (blink-cursor-mode +1)
+
+  ;; Change cursor type
+  (setq-default cursor-type 'bar)
 
   ;; File tree sidebar
   (use-package treemacs
@@ -366,7 +375,7 @@
   ;;         modus-themes-paren-match '(intense)
   ;;         modus-themes-subtle-line-numbers t
   ;;         modus-themes-org-blocks 'gray-background)
-  ;;   (load-theme 'modus-vivendi t))
+  ;;   (load-theme 'modus-operandi t))
 
   ;; (use-package mindre-theme
   ;;   :custom
@@ -374,6 +383,22 @@
   ;;   (mindre-use-faded-lisp-parens t)
   ;;   :config
   ;;   (load-theme 'mindre t))
+
+  ;; (use-package doom-modeline
+  ;;   :config
+  ;;   (doom-modeline-mode 1))
+
+  ;; Config default modeline
+  (defun my/config-default-modeline ()
+    (let ((bg-color (face-attribute 'mode-line :background))
+          (inactive-bg-color (face-attribute 'mode-line-inactive :background)))
+    (set-face-attribute 'mode-line nil
+                        :height (- my/default-font-height 20)
+                        :box `(:line-width 8 :color ,bg-color))
+    (set-face-attribute 'mode-line-inactive nil
+                        :height (- my/default-font-height 20)
+                        :box `(:line-width 8 :color ,inactive-bg-color))))
+  (my/config-default-modeline)
 
   ;; Dealing with pairs (parenthesis, brackets, etc)
   (use-package smartparens
@@ -404,17 +429,17 @@
     :custom
     (lsp-log-io nil)
     (lsp-restart 'auto-restart)
-    (lsp-enable-symbol-highlighting t)
-    (lsp-enable-on-type-formatting t)
-    (lsp-enable-indentation t)
+    (lsp-lens-enable nil)
+    ;; (lsp-enable-symbol-highlighting nil)
+    ;; (lsp-enable-on-type-formatting nil)
+    ;; (lsp-enable-indentation nil)
     (lsp-signature-auto-activate nil)
     (lsp-modeline-code-actions-enable nil)
     (lsp-modeline-diagnostics-enable nil)
     (lsp-headerline-breadcrumb-enable nil)
     (lsp-enable-folding nil)
-    (lsp-enable-imenu nil)
+    ;; (lsp-enable-imenu nil)
     (lsp-enable-snippet nil)
-    (lsp-lens-enable nil)
     ;; Use corfu as completion
     (lsp-completion-provider :none))
 
@@ -426,25 +451,32 @@
   (use-package consult-lsp
     :after (consult lsp))
 
+  (defun my/clojure-mode-hook ()
+    (lsp-deferred))
+
   (use-package clojure-mode
     :hook
-    (clojure-mode . lsp-deferred)
+    (clojure-mode . my/clojure-mode-hook)
     :custom
     (clojure-align-forms-automatically nil))
 
   (defun my/cider-mode-hook ()
-    (smartparens-strict-mode)
     ;; Use CIDER completion when the REPL is on
     (setq-local lsp-enable-completion-at-point nil)
     ;; Temporary fix to use cider completions with corfu
     (setq-local completion-styles '(basic)))
+
+  (defun my/cider-repl-mode-hook ()
+    (smartparens-strict-mode +1)
+    (toggle-truncate-lines))
 
   (use-package cider
     :commands cider-jack-in
     :bind
     ("C-c M-b" . cider-repl-clear-buffer)
     :hook
-    (cider-mode . my/cider-mode-hook)
+    ((cider-mode . my/cider-mode-hook)
+     (cider-repl-mode . my/cider-repl-mode-hook))
     :config
     (unbind-key "M-." cider-mode-map)
     (unbind-key "M-," cider-mode-map)
@@ -580,3 +612,15 @@
   (provide 'init)
 
   ;;; init.el ends here.
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values '((cider-clojure-cli-aliases . ":dev:test:nrepl"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
