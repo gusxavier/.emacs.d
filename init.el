@@ -32,20 +32,25 @@
     (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
     (setq package-native-compile t)))
 
-(require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("gnu" . "https://elpa.gnu.org/packages/")))
+;; Disable package.el so we can use straight.el
+(setq package-enable-at-startup nil)
 
-;; Activate packages
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
+;; Bootstrap straight.el
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+	(url-retrieve-synchronously
+	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-;; Bootstrap use-package
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-(require 'use-package)
+;; Install use-package
+(straight-use-package 'use-package)
 
 ;; Always install missing packages
 (setq use-package-always-ensure t)
@@ -54,6 +59,10 @@
 (defun package--save-selected-packages (&rest _opt)
   "Avoid writing `package-selected-packages' on init.el."
   nil)
+
+;; Configure use-package to use straight.el by default
+(use-package straight
+  :custom (straight-use-package-by-default t))
 
 ;; Load custom or local code packages
 (add-to-list 'load-path (expand-file-name "custom/" user-emacs-directory))
@@ -71,6 +80,13 @@
   :init
   (diminish 'visual-line-mode)
   (diminish 'eldoc-mode))
+
+;; Drag lines or region
+(use-package drag-stuff
+  :diminish
+  :config
+  (drag-stuff-global-mode 1)
+  (drag-stuff-define-keys))
 
 ;; Better comments
 (use-package evil-nerd-commenter
@@ -144,13 +160,20 @@
   (corfu-cycle t)
   (corfu-auto-prefix 1))
 
+;; (use-package company
+;;   :init
+;;   (global-company-mode +1))
+
 ;; Better completion style
 (use-package orderless
   :custom
   (completion-styles '(orderless))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles basic partial-completion))))
-  (orderless-matching-styles '(orderless-literal orderless-prefixes orderless-initialism orderless-regexp)))
+  (orderless-matching-styles '(orderless-literal
+			       orderless-prefixes
+			       orderless-initialism
+			       orderless-regexp)))
 
 ;; Completion framework
 (use-package vertico
@@ -246,18 +269,35 @@
 (use-package vterm
   :commands vterm)
 
+(defvar my/default-font "PragmataPro")
+
 (defvar my/default-font-height
-  (if (eq system-type 'darwin) 200 180))
+  (if (eq system-type 'darwin) 220 180))
 
-(defvar my/default-font
-  (concat "PragmataPro"
-	  " "
-	  (number-to-string (/ my/default-font-height 10))))
+(defun my/set-font (font-family font-height)
+  (let ((frame-font (concat my/default-font
+			    " "
+			    (number-to-string (/ my/default-font-height 10)))))
+    (set-frame-font frame-font t t)
+    (set-face-attribute 'fixed-pitch nil
+			:family font-family
+			:height font-height)))
 
-(set-frame-font my/default-font t t)
+(my/set-font my/default-font my/default-font-height)
 
 ;; Set font line height
-(setq-default default-text-properties '(line-spacing 0.25 line-height 1.25))
+;; (setq-default line-spacing 0.5)
+;; (setq-default default-text-properties '(line-spacing 0.3 line-height 1.3))
+;; (defun my/set-line-height ()
+;;   (setq-local default-text-properties '(line-spacing 0.25 line-height 1.25)))
+;; (add-hook 'text-mode-hook 'my/set-line-height)
+;; (add-hook 'prog-mode-hook 'my/set-line-height)
+
+;; Change minibuffer line height
+;; (defun my/minibuffer-setup ()
+;;   (set (make-local-variable 'face-remapping-alist)
+;;        '((default :height 0.9))))
+;; (add-hook 'minibuffer-setup-hook 'my/minibuffer-setup)
 
 ;; Set encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -265,12 +305,6 @@
 
 ;; Avoid slowness with some fonts
 (setq inhibit-compacting-font-caches t)
-
-;; Change minibuffer line height
-(defun my/minibuffer-setup ()
-  (set (make-local-variable 'face-remapping-alist)
-       '((default :height 0.9))))
-(add-hook 'minibuffer-setup-hook 'my/minibuffer-setup)
 
 ;; Enable PragmataPro font ligatures
 ;; (require 'pragmatapro-lig)
@@ -281,11 +315,11 @@
 (use-package all-the-icons
   :if (display-graphic-p))
 
-(use-package all-the-icons-completion
-  :after (marginalia all-the-icons)
-  :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
-  :init
-  (all-the-icons-completion-mode))
+;; (use-package all-the-icons-completion
+;;   :after (marginalia all-the-icons)
+;;   :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
+;;   :init
+;;   (all-the-icons-completion-mode))
 
 ;; Remove scroll bar
 (scroll-bar-mode -1)
@@ -329,7 +363,7 @@
 (setq inhibit-startup-message t)
 
 ;; Highlight parens
-(show-paren-mode -1)
+(show-paren-mode +1)
 
 ;; At last some piece and quiet
 (setq visible-bell t)
@@ -339,31 +373,50 @@
 (blink-cursor-mode +1)
 
 ;; Change cursor type
-(setq-default cursor-type 'bar)
+;; (setq-default cursor-type 'bar)
 
 ;; File tree sidebar
 (use-package treemacs
   :commands treemacs
   :bind
-  ("<f8>" . treemacs)
-  :custom
-  (treemacs-space-between-root-nodes nil)
-  (treemacs-text-scale -0.5))
-
-(use-package treemacs-all-the-icons
-  :after (treemacs all-the-icons)
-  :config
-  (treemacs-load-all-the-icons-with-workaround-font my/default-font))
+  ("<f8>" . treemacs))
 
 ;; Show each delimiter (parenthesis, brackets, etc) with different colors
 (use-package rainbow-delimiters
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
+;; (use-package nano-theme
+;;   :straight
+;;   (nano-theme :type git :host github :repo "rougier/nano-theme")
+;;   :config
+;;   (nano-dark))
+
 (use-package doom-themes
+  :custom
+  (doom-themes-treemacs-enable-variable-pitch nil)
   :config
-  (load-theme 'doom-monokai-pro t)
-  (doom-themes-org-config))
+  (load-theme 'doom-one t)
+  (doom-themes-org-config)
+  (doom-themes-treemacs-config)
+  (custom-set-faces
+   '(treemacs-root-face ((t (:height 1.0))))
+   '(treemacs-file-face ((t (:height 0.8))))
+   '(treemacs-tags-face ((t (:height 0.8))))
+   '(treemacs-directory-face ((t (:height 0.8))))
+   '(treemacs-git-ignored-face ((t (:height 0.8))))
+   '(treemacs-git-modified-face ((t (:height 0.8))))
+   '(treemacs-git-unmodified-face ((t (:height 0.8))))
+   '(treemacs-git-untracked-face ((t (:height 0.8))))
+   '(treemacs-git-conflict-face ((t (:height 0.8))))
+   '(treemacs-git-renamed-face ((t (:height 0.8))))))
+
+(use-package nano-modeline
+  :custom
+  (nano-modeline-position 'bottom)
+  (nano-modeline-prefix-padding t)
+  :config
+  (nano-modeline-mode 1))
 
 ;; (use-package modus-themes
 ;;   :bind
@@ -374,8 +427,8 @@
 ;;         modus-themes-italic-constructs t
 ;;         modus-themes-paren-match '(intense)
 ;;         modus-themes-subtle-line-numbers t
-;;         modus-themes-org-blocks 'gray-background)
-;;   (load-theme 'modus-operandi t))
+;;         modus-themes-org-blocks 'tinted-background)
+;;   (load-theme 'modus-vivendi t))
 
 ;; (use-package mindre-theme
 ;;   :custom
@@ -388,30 +441,35 @@
 ;;   :config
 ;;   (doom-modeline-mode 1))
 
-;; Config default modeline
-(defun my/config-default-modeline ()
-  (let ((bg-color (face-attribute 'mode-line :background))
-        (inactive-bg-color (face-attribute 'mode-line-inactive :background)))
-    (set-face-attribute 'mode-line nil
-                        :height (- my/default-font-height 20)
-                        :box `(:line-width 8 :color ,bg-color))
-    (set-face-attribute 'mode-line-inactive nil
-                        :height (- my/default-font-height 20)
-                        :box `(:line-width 8 :color ,inactive-bg-color))))
-(my/config-default-modeline)
+;; Smart auto formatting
+(use-package apheleia
+  :diminish
+  :config
+  (apheleia-global-mode +1))
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
   :diminish
-  :hook
-  (prog-mode . smartparens-strict-mode)
   :config
+  (smartparens-global-mode +1)
   (require 'smartparens-config)
   (sp-use-smartparens-bindings))
 
 ;; Make HTTP requests inside Emacs
 (use-package restclient
   :commands restclient-mode)
+
+;; Better programming language parsing
+(use-package tree-sitter
+  :ensure t
+  :hook
+  (tree-siter-after-on-hook . tree-sitter-hl-mode)
+  :config
+  (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs
+  :ensure t
+  :after tree-sitter)
 
 ;; Git + Emacs = <3
 (use-package magit
@@ -438,10 +496,10 @@
   (lsp-modeline-diagnostics-enable nil)
   (lsp-headerline-breadcrumb-enable nil)
   (lsp-enable-folding nil)
+  (lsp-eslint-validate '("typescript"))
   ;; (lsp-enable-imenu nil)
-  (lsp-enable-snippet nil)
-  ;; Use corfu as completion
-  (lsp-completion-provider :none))
+  (lsp-completion-provider :none) ;; Use corfu as completion
+  (lsp-enable-snippet nil))
 
 ;; LSP + Treemacs integration
 (use-package lsp-treemacs
@@ -522,7 +580,21 @@
 
 (use-package typescript-mode
   :hook
-  (typescript-mode . lsp-deferred))
+  ((typescript-mode . lsp-deferred)
+   (typescript-mode . tree-sitter-hl-mode))
+  :custom
+  (typescript-indent-level 2))
+
+(use-package tsi
+  :straight
+  (tsi :type git :host github :repo "orzechowskid/tsi.el")
+  :commands
+  (tsi-typescript-mode tsi-json-mode tsi-css-mode)
+  :hook
+  ((typescript-mode . tsi-typescript-mode)
+   (json-mode . tsi-json-mode)
+   (css-mode . tsi-css-mode)
+   (scss-mode . tsi-scss-mode)))
 
 (use-package elixir-mode
   :hook
@@ -540,11 +612,9 @@
   "Custom 'org-mode' setup."
   (org-indent-mode)
   (diminish 'org-indent-mode)
-  (smartparens-mode 1)
   (visual-line-mode 1))
 
 (use-package org
-  :pin org
   :commands (org-capture org-agenda)
   :hook
   (org-mode . my/org-mode-setup)
@@ -558,9 +628,11 @@
    '((sequence "TODO(t)" "DOING(i)" "REVIEW(r)" "BLOCKED(b)" "|" "DONE(d!)")))
   :config
   ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  (font-lock-add-keywords
+   'org-mode
+   '(("^ *\\([-]\\) "
+      (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
   ;; Make org link open file in the same buffer
   (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
 
@@ -568,12 +640,9 @@
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((emacs-lisp . t)))
-
   (setq org-confirm-babel-evaluate nil)
-
   (defun my/org-babel-tangle-config ()
     (when (string-equal (buffer-file-name) my/config-file)
       ;; Dynamic scoping to the rescue
@@ -609,6 +678,9 @@
 ;; Bring GC threshold back to a more reasonable amount
 (setq gc-cons-threshold (* 10 1000 1000))
 
+;; Maximize frame
+(toggle-frame-maximized)
+
 (provide 'init)
 
-  ;;; init.el ends here.
+;;; init.el ends here.
