@@ -65,7 +65,8 @@
   :custom (straight-use-package-by-default t))
 
 ;; Load custom or local code packages
-(add-to-list 'load-path (expand-file-name "custom/" user-emacs-directory))
+(setq my/user-emacs-custom-directory (expand-file-name "custom/" user-emacs-directory))
+(add-to-list 'load-path my/user-emacs-custom-directory)
 
 ;; Keep folders clean
 (use-package no-littering
@@ -441,11 +442,18 @@
 ;;   :config
 ;;   (doom-modeline-mode 1))
 
+(setq my/prettier-temp-script
+      (expand-file-name "prettier.sh" my/user-emacs-custom-directory))
+
 ;; Smart auto formatting
 (use-package apheleia
   :diminish
   :config
-  (apheleia-global-mode +1))
+  (apheleia-global-mode +1)
+  ;; Temporary fix for prettier
+  ;; Check https://github.com/radian-software/apheleia/issues/118
+  (setf (alist-get 'prettier apheleia-formatters)
+	'(my/prettier-temp-script filepath)))
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
@@ -510,7 +518,8 @@
   :after (consult lsp))
 
 (defun my/clojure-mode-hook ()
-  (lsp-deferred))
+  (lsp-deferred)
+  (smartparens-strict-mode +1))
 
 (use-package clojure-mode
   :hook
