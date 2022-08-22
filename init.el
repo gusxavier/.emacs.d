@@ -453,7 +453,7 @@
   ;; Temporary fix for prettier
   ;; Check https://github.com/radian-software/apheleia/issues/118
   (setf (alist-get 'prettier apheleia-formatters)
-	'(my/prettier-temp-script filepath)))
+	(list my/prettier-temp-script 'filepath)))
 
 ;; Dealing with pairs (parenthesis, brackets, etc)
 (use-package smartparens
