@@ -524,18 +524,7 @@ Some general display configuration for a better overall experience.
   :config
   (load-theme 'doom-one t)
   (doom-themes-org-config)
-  (doom-themes-treemacs-config)
-  (custom-set-faces
-   '(treemacs-root-face ((t (:height 1.0))))
-   '(treemacs-file-face ((t (:height 0.8))))
-   '(treemacs-tags-face ((t (:height 0.8))))
-   '(treemacs-directory-face ((t (:height 0.8))))
-   '(treemacs-git-ignored-face ((t (:height 0.8))))
-   '(treemacs-git-modified-face ((t (:height 0.8))))
-   '(treemacs-git-unmodified-face ((t (:height 0.8))))
-   '(treemacs-git-untracked-face ((t (:height 0.8))))
-   '(treemacs-git-conflict-face ((t (:height 0.8))))
-   '(treemacs-git-renamed-face ((t (:height 0.8))))))
+  (doom-themes-treemacs-config))
 
 (use-package nano-modeline
   :custom
@@ -707,6 +696,7 @@ Some general display configuration for a better overall experience.
   (cider-repl-display-help-banner nil)
   (cider-pprint-fn 'fipp)
   (cider-prompt-for-symbol nil)
+  (cider-test-show-report-on-success t)
   (cider-test-defining-forms '("deftest"
                                "defspec"
                                "defflow"
