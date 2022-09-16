@@ -161,10 +161,6 @@
   (corfu-cycle t)
   (corfu-auto-prefix 1))
 
-;; (use-package company
-;;   :init
-;;   (global-company-mode +1))
-
 ;; Better completion style
 (use-package orderless
   :custom
@@ -273,7 +269,7 @@
 (defvar my/default-font "PragmataPro")
 
 (defvar my/default-font-height
-  (if (eq system-type 'darwin) 220 180))
+  (if (eq system-type 'darwin) 200 180))
 
 (defun my/set-font (font-family font-height)
   (let ((frame-font (concat my/default-font
@@ -285,20 +281,6 @@
 			:height font-height)))
 
 (my/set-font my/default-font my/default-font-height)
-
-;; Set font line height
-;; (setq-default line-spacing 0.5)
-;; (setq-default default-text-properties '(line-spacing 0.3 line-height 1.3))
-;; (defun my/set-line-height ()
-;;   (setq-local default-text-properties '(line-spacing 0.25 line-height 1.25)))
-;; (add-hook 'text-mode-hook 'my/set-line-height)
-;; (add-hook 'prog-mode-hook 'my/set-line-height)
-
-;; Change minibuffer line height
-;; (defun my/minibuffer-setup ()
-;;   (set (make-local-variable 'face-remapping-alist)
-;;        '((default :height 0.9))))
-;; (add-hook 'minibuffer-setup-hook 'my/minibuffer-setup)
 
 ;; Set encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -370,12 +352,6 @@
 (setq visible-bell t)
 (setq ring-bell-function 'ignore)
 
-;; Set blinking cursor
-(blink-cursor-mode +1)
-
-;; Change cursor type
-;; (setq-default cursor-type 'bar)
-
 ;; File tree sidebar
 (use-package treemacs
   :commands treemacs
@@ -387,49 +363,31 @@
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
-;; (use-package nano-theme
-;;   :straight
-;;   (nano-theme :type git :host github :repo "rougier/nano-theme")
-;;   :config
-;;   (nano-dark))
+(defun my/load-theme (theme)
+  (disable-theme (car custom-enabled-themes))
+  (load-theme theme t))
 
 (use-package doom-themes
   :custom
   (doom-themes-treemacs-enable-variable-pitch nil)
   :config
-  (load-theme 'doom-one t)
+  (my/load-theme 'doom-one)
   (doom-themes-org-config)
   (doom-themes-treemacs-config))
-
-(use-package nano-modeline
-  :custom
-  (nano-modeline-position 'bottom)
-  (nano-modeline-prefix-padding t)
-  :config
-  (nano-modeline-mode 1))
 
 ;; (use-package modus-themes
 ;;   :bind
 ;;   ("<f5>" . modus-themes-toggle)
 ;;   :init
-;;   (setq modus-themes-mode-line '(accented borderless)
+;;   (setq modus-themes-mode-line '(borderless)
 ;;         modus-themes-region '(bg-only accented)
-;;         modus-themes-italic-constructs t
-;;         modus-themes-paren-match '(intense)
 ;;         modus-themes-subtle-line-numbers t
-;;         modus-themes-org-blocks 'tinted-background)
-;;   (load-theme 'modus-vivendi t))
+;;         modus-themes-org-blocks 'gray-background)
+;;   (my/load-theme 'modus-operandi))
 
-;; (use-package mindre-theme
-;;   :custom
-;;   (mindre-use-more-bold nil)
-;;   (mindre-use-faded-lisp-parens t)
-;;   :config
-;;   (load-theme 'mindre t))
-
-;; (use-package doom-modeline
-;;   :config
-;;   (doom-modeline-mode 1))
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode t))
 
 (setq my/prettier-temp-script
       (expand-file-name "prettier.sh" my/user-emacs-custom-directory))
@@ -488,6 +446,7 @@
   ;; (lsp-enable-symbol-highlighting nil)
   ;; (lsp-enable-on-type-formatting nil)
   ;; (lsp-enable-indentation nil)
+  ;; (lsp-semantic-tokens-enable nil)
   (lsp-signature-auto-activate nil)
   (lsp-modeline-code-actions-enable nil)
   (lsp-modeline-diagnostics-enable nil)
@@ -529,7 +488,7 @@
 (use-package cider
   :commands cider-jack-in
   :bind
-  ("C-c M-b" . cider-repl-clear-buffer)
+  (("C-c M-b" . cider-repl-clear-buffer))
   :hook
   ((cider-mode . my/cider-mode-hook)
    (cider-repl-mode . my/cider-repl-mode-hook))
