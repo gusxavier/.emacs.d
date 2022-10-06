@@ -566,6 +566,9 @@ Some general display configuration for a better overall experience.
   :ensure t
   :after tree-sitter)
 
+;; Generate UUIDs in place
+(require 'uuidgen)
+
 #+end_src
 
 
