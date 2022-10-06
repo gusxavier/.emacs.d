@@ -269,7 +269,7 @@
 (defvar my/default-font "PragmataPro")
 
 (defvar my/default-font-height
-  (if (eq system-type 'darwin) 200 180))
+  (if (eq system-type 'darwin) 190 180))
 
 (defun my/set-font (font-family font-height)
   (let ((frame-font (concat my/default-font
@@ -281,6 +281,12 @@
 			:height font-height)))
 
 (my/set-font my/default-font my/default-font-height)
+
+;; Set line height. Works properly only with this custom patch:
+;; https://lists.gnu.org/archive/html/emacs-devel/2019-08/txtY68Nfh61tp.txt
+(setq-default line-spacing-vertical-center t)
+(setq-default line-spacing 0.4)
+(setq-default resize-mini-windows nil)
 
 ;; Set encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -336,6 +342,10 @@
 (line-number-mode t)
 (column-number-mode t)
 
+;; Set bar cursor
+(setq-default cursor-type 'bar)
+(blink-cursor-mode 1)
+
 ;; Smooth scrolling
 (setq scroll-margin 0
       scroll-conservatively 100000
@@ -369,9 +379,9 @@
 
 (use-package doom-themes
   :custom
-  (doom-themes-treemacs-enable-variable-pitch nil)
+  (doom-themes-treemacs-enable-variable-pitch t)
   :config
-  (my/load-theme 'doom-one)
+  (my/load-theme 'doom-zenburn)
   (doom-themes-org-config)
   (doom-themes-treemacs-config))
 
@@ -412,7 +422,8 @@
 
 ;; Make HTTP requests inside Emacs
 (use-package restclient
-  :commands restclient-mode)
+  :commands restclient-mode
+  :mode (("\\.rest\\'" . restclient-mode)))
 
 ;; Better programming language parsing
 (use-package tree-sitter
@@ -425,6 +436,9 @@
 (use-package tree-sitter-langs
   :ensure t
   :after tree-sitter)
+
+;; Generate UUIDs in place
+(require 'uuidgen)
 
 ;; Git + Emacs = <3
 (use-package magit
@@ -444,9 +458,9 @@
   (lsp-restart 'auto-restart)
   (lsp-lens-enable nil)
   ;; (lsp-enable-symbol-highlighting nil)
-  ;; (lsp-enable-on-type-formatting nil)
-  ;; (lsp-enable-indentation nil)
-  ;; (lsp-semantic-tokens-enable nil)
+  (lsp-enable-on-type-formatting t)
+  (lsp-enable-indentation t)
+  (lsp-semantic-tokens-enable t)
   (lsp-signature-auto-activate nil)
   (lsp-modeline-code-actions-enable nil)
   (lsp-modeline-diagnostics-enable nil)
@@ -472,6 +486,9 @@
 (use-package clojure-mode
   :hook
   (clojure-mode . my/clojure-mode-hook)
+  :config
+  (define-clojure-indent
+    (for-all '(1 ((:defn)) nil)))
   :custom
   (clojure-align-forms-automatically nil))
 
