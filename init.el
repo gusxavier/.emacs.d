@@ -269,7 +269,7 @@
 (defvar my/default-font "PragmataPro")
 
 (defvar my/default-font-height
-  (if (eq system-type 'darwin) 190 180))
+  (if (eq system-type 'darwin) 200 180))
 
 (defun my/set-font (font-family font-height)
   (let ((frame-font (concat my/default-font
@@ -284,9 +284,9 @@
 
 ;; Set line height. Works properly only with this custom patch:
 ;; https://lists.gnu.org/archive/html/emacs-devel/2019-08/txtY68Nfh61tp.txt
-(setq-default line-spacing-vertical-center t)
-(setq-default line-spacing 0.4)
-(setq-default resize-mini-windows nil)
+;; (setq-default line-spacing-vertical-center t)
+;; (setq-default line-spacing 0.4)
+;; (setq-default resize-mini-windows nil)
 
 ;; Set encoding to UTF-8
 (set-language-environment "UTF-8")
@@ -343,8 +343,8 @@
 (column-number-mode t)
 
 ;; Set bar cursor
-(setq-default cursor-type 'bar)
-(blink-cursor-mode 1)
+;; (setq-default cursor-type 'bar)
+(blink-cursor-mode t)
 
 ;; Smooth scrolling
 (setq scroll-margin 0
@@ -381,7 +381,7 @@
   :custom
   (doom-themes-treemacs-enable-variable-pitch t)
   :config
-  (my/load-theme 'doom-zenburn)
+  (my/load-theme 'doom-one)
   (doom-themes-org-config)
   (doom-themes-treemacs-config))
 
@@ -659,3 +659,15 @@
 (provide 'init)
 
 ;;; init.el ends here.
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values '((cider-clojure-cli-global-options . "-A:dev:test:nrepl"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
